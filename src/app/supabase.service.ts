@@ -165,4 +165,24 @@ export class SupabaseService {
   rpc(fn: string, params?: Record<string, any>) {
     return this.supabase.rpc(fn, params);
   }
+
+  async updateUserMetadata(metadata: Record<string, any>): Promise<{ error: any }> {
+    try {
+      const { error } = await this.supabase.auth.updateUser({ data: metadata });
+      return { error };
+    } catch (error) {
+      console.error('Update user metadata error:', error);
+      return { error };
+    }
+  }
+
+  async updateUserEmail(newEmail: string): Promise<{ error: any }> {
+    try {
+      const { error } = await this.supabase.auth.updateUser({ email: newEmail });
+      return { error };
+    } catch (error) {
+      console.error('Update user email error:', error);
+      return { error: error as Error };
+    }
+  }
 }

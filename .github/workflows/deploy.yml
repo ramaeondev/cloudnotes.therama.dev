@@ -4,8 +4,8 @@ name: Update Deployment Status and Log to Supabase
 
 on:
   push:
-    branches: [ master ]
-  workflow_dispatch:
+    # branches: [ master ]
+  # workflow_dispatch:
 
 
 jobs:

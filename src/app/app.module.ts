@@ -1,4 +1,6 @@
 import { NgModule } from '@angular/core';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { AuthInterceptor } from './services/auth.interceptor';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -16,9 +18,11 @@ import { DashboardModule } from './dashboard/dashboard.module';
     AppRoutingModule,
     AuthModule,
     FormsModule,
-    DashboardModule,
+    DashboardModule
   ],
-  providers: [],
+  providers: [
+    provideHttpClient(withInterceptorsFromDi()),
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

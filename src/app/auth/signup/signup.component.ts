@@ -50,7 +50,14 @@ export class SignupComponent {
     const { error } = await this.supabase.signUp(
       email,
       password,
-      { first_name, last_name, username }
+      {
+        first_name,
+        last_name,
+        username,
+        isFirstLogin: true,
+        is_news_letter_subscribed: false,
+        is_root_folder_created: false
+      }
     );
     this.loading = false;
     if (error) {
