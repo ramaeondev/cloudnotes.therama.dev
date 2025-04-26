@@ -59,7 +59,7 @@ export class SignupComponent {
       this.message = 'Confirmation email sent!';
       this.signupForm.reset();
       setTimeout(() => {
-        this.router.navigate(['/login']);
+        this.router.navigate(['/signin']);
       }, 1000);
     }
   }
