@@ -1,0 +1,18 @@
+// Global style overrides for mat-menu
+::ng-deep .mat-menu-panel {
+  border-radius: 10px !important;
+  min-width: 160px !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+}
+::ng-deep .mat-menu-item {
+  font-family: 'Inter', 'Roboto', sans-serif !important;
+  font-size: 15px !important;
+  padding: 10px 22px !important;
+  border-radius: 6px !important;
+  margin: 2px 0;
+  transition: background 0.2s;
+}
+::ng-deep .mat-menu-item:hover, ::ng-deep .mat-menu-item.cdk-focused {
+  background: #e3f2fd !important;
+  color: #1976d2 !important;
+}

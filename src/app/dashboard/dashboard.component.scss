@@ -3,24 +3,65 @@
 }
 
 .dashboard-sidenav {
-  width: 220px;
-  background: #f8f9fa;
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 0;
+  position: relative;
+}
+
+.sidenav-profile {
+  padding: 16px;
+  margin-top: auto;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  position: absolute;
+  bottom: 0;
+  left: 0;
 }
 
 .sidenav-header {
-  font-size: 1.2em;
-  font-weight: bold;
+  width: 100%;
+  display: flex;
   justify-content: center;
+  align-items: center;
+  padding: 20px 0 16px 20px;
+  border-bottom: none;
 }
 
-.dashboard-header {
+.logo-appname-row {
+  width: 100%;
   display: flex;
   align-items: center;
-  z-index: 2;
+  justify-content: center;
+  gap: 10px;
 }
 
-.logo {
-  margin-right: 12px;
+.logo-cloud {
+  font-size: 2rem;
+  color: #90caf9;
+  vertical-align: middle;
+}
+
+.app-title {
+  font-size: 2.1em;
+  font-weight: 900;
+  font-family: 'Inter', 'Roboto', sans-serif;
+  color: #1976d2;
+  letter-spacing: 1.2px;
+  vertical-align: middle;
+  width: 100%;
+  text-align: left;
+  line-height: 1.1;
+}
+
+
+.logo-small {
+  width: 32px;
+  height: 32px;
 }
 
 .app-name {
