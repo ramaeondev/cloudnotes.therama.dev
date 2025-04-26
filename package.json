@@ -1,6 +1,32 @@
 {
-  "name": "cloudnotes-angular.therama.dev",
-  "version": "0.0.0",
+  "name": "cloudnotes.therama.dev",
+  "version": "0.0.1",
+  "project_id":"7a3abbb7-b666-483c-9a47-dc2a08a9ab83",
+  "status": "Under Development",
+  "description": "CloudNotes is an open-source note-taking application designed for simplicity, productivity, and privacy. Create, organize, and access your notes from anywhere with our powerful Markdown editor, folder organization, and cloud integrations.",
+  "author": "Ramaeon",
+  "license": "MIT",
+  "homepage": "https://cloudnotes.therama.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ramaeondev/cloudnotes.therama.dev"
+  },
+  "keywords": [
+    "angular",
+    "typescript",
+    "tailwindcss",
+    "shadcn/ui"
+  ],
+  "features": [
+    "Responsive Design",
+    "Dark Mode",
+    "Light Mode",
+    "Customizable Themes",
+    "Accessibility"
+  ],
+  "update_project_version": "https://api.therama.dev/functions/v1/update-project-version",
+  "log_deployment": "https://api.therama.dev/functions/v1/log-deployment",
+
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
