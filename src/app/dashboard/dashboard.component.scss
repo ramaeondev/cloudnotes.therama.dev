@@ -1,0 +1,50 @@
+.dashboard-container {
+  height: 100vh;
+}
+
+.dashboard-sidenav {
+  width: 220px;
+  background: #f8f9fa;
+}
+
+.sidenav-header {
+  font-size: 1.2em;
+  font-weight: bold;
+  justify-content: center;
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  z-index: 2;
+}
+
+.logo {
+  margin-right: 12px;
+}
+
+.app-name {
+  font-size: 1.3em;
+  font-weight: 600;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.dashboard-content {
+  padding: 32px;
+}
+
+.hide-desktop {
+  display: none;
+}
+
+@media (max-width: 800px) {
+  .dashboard-sidenav {
+    width: 60vw;
+  }
+  .hide-desktop {
+    display: inline-flex;
+  }
+}

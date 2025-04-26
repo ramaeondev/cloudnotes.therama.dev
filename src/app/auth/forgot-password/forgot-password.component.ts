@@ -16,15 +16,27 @@ export class ForgotPasswordComponent {
   constructor(private supabase: SupabaseService) {}
 
   async sendResetEmail() {
+    if (!this.email) {
+      this.error = 'Please enter your email address';
+      return;
+    }
+    
     this.loading = true;
     this.error = null;
     this.message = null;
-    const { error } = await this.supabase.supabase.auth.resetPasswordForEmail(this.email);
-    this.loading = false;
-    if (error) {
-      this.error = error.message;
-    } else {
-      this.message = 'Password reset email sent!';
+    
+    try {
+      const { error } = await this.supabase.resetPassword(this.email);
+      this.loading = false;
+      
+      if (error) {
+        this.error = error.message;
+      } else {
+        this.message = 'Password reset email sent! Please check your inbox.';
+      }
+    } catch (err: any) {
+      this.loading = false;
+      this.error = err.message || 'An unexpected error occurred';
     }
   }
 }

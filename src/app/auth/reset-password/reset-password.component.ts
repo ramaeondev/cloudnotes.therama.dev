@@ -18,26 +18,40 @@ export class ResetPasswordComponent {
   constructor(private supabase: SupabaseService) {}
 
   async resetPassword(accessToken: string, refreshToken: string) {
+    if (!this.password) {
+      this.error = 'Please enter a new password';
+      return;
+    }
+    
     this.loading = true;
     this.error = null;
     this.message = null;
-    // Set the session using the provided access and refresh tokens
-    const { error: sessionError } = await this.supabase.supabase.auth.setSession({
-      access_token: accessToken,
-      refresh_token: refreshToken
-    });
-    if (sessionError) {
+    
+    try {
+      // Set the session using the provided access and refresh tokens
+      const { error: sessionError } = await this.supabase.supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken
+      });
+      
+      if (sessionError) {
+        this.loading = false;
+        this.error = sessionError.message;
+        return;
+      }
+      
+      // Now update the password using our enhanced service method
+      const { error } = await this.supabase.updatePassword(this.password);
       this.loading = false;
-      this.error = sessionError.message;
-      return;
-    }
-    // Now update the password
-    const { error } = await this.supabase.supabase.auth.updateUser({ password: this.password });
-    this.loading = false;
-    if (error) {
-      this.error = error.message;
-    } else {
-      this.message = 'Password updated!';
+      
+      if (error) {
+        this.error = error.message;
+      } else {
+        this.message = 'Password updated successfully! You can now sign in with your new password.';
+      }
+    } catch (err: any) {
+      this.loading = false;
+      this.error = err.message || 'An unexpected error occurred';
     }
   }
 }

@@ -4,13 +4,41 @@
       <img src="assets/logo.png" alt="CloudNotes Logo" class="h-16 mb-2">
       <h1 class="text-2xl font-bold text-blue-600 mb-2">Cloud Notes</h1>
     </div>
-    <h2 class="text-2xl font-bold text-center text-gray-800">Check your email</h2>
-    <div class="p-4 text-center">
+    
+    <!-- Loading state -->
+    <div *ngIf="loading" class="p-4 text-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+      <p class="text-gray-600">Verifying your email...</p>
+    </div>
+    
+    <!-- Error message -->
+    <div *ngIf="error && !loading" class="p-4 text-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <h2 class="text-xl font-bold text-center text-gray-800 mb-2">Email Verification Failed</h2>
+      <p class="text-red-600 mb-6">{{ error }}</p>
+      <p class="text-gray-600">Please try again or contact support if the problem persists.</p>
+    </div>
+    
+    <!-- Success message -->
+    <div *ngIf="message && !loading" class="p-4 text-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-green-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+      </svg>
+      <h2 class="text-xl font-bold text-center text-gray-800 mb-2">Email Verified</h2>
+      <p class="text-green-600 mb-6">{{ message }}</p>
+    </div>
+    
+    <!-- Default state when not loading and no message/error -->
+    <div *ngIf="!loading && !message && !error" class="p-4 text-center">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-blue-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
       </svg>
+      <h2 class="text-xl font-bold text-center text-gray-800 mb-2">Check your email</h2>
       <p class="text-gray-600 mb-6">A confirmation link has been sent to your email address. Please confirm your email to continue.</p>
     </div>
+    
     <p class="text-center text-sm text-gray-600">
       <a routerLink="/signin" class="text-blue-600 hover:underline">Return to Sign In</a>
     </p>
