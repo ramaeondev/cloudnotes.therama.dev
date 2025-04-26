@@ -13,6 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
+import { LogoAppnameComponent } from '../shared/logo-appname/logo-appname.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { MatDividerModule } from '@angular/material/divider';
     MatMenuModule,
     MatListModule,
     MatDividerModule,
-    FontAwesomeModule
+    FontAwesomeModule,
+    LogoAppnameComponent
   ]
 })
 export class DashboardModule { }

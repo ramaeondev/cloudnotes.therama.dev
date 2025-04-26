@@ -1,33 +1,65 @@
 <div class="flex items-center justify-center min-h-screen bg-gray-100">
-  <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
-    <div class="flex flex-col items-center justify-center">
-      <img src="assets/logo.png" alt="CloudNotes Logo" class="h-16 mb-2">
-      <h1 class="text-2xl font-bold text-blue-600 mb-2">Cloud Notes</h1>
+  <div class="w-full max-w-md p-8 space-y-3 bg-white rounded-lg shadow-md">
+    <div class="flex justify-center">
+      <app-logo-appname></app-logo-appname>
     </div>
     <h2 class="text-2xl font-bold text-center text-gray-800">Sign Up</h2>
     <p class="text-center text-gray-600">Create your account to start using CloudNotes</p>
-    <form (ngSubmit)="signUp()" class="space-y-4">
+    <form [formGroup]="signupForm" (ngSubmit)="signUp()" class="space-y-2">
+      <div class="space-y-2">
+        <label class="block text-sm font-medium text-gray-700">First Name:</label>
+        <input type="text" formControlName="first_name"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <div *ngIf="signupForm.get('first_name')?.touched && signupForm.get('first_name')?.invalid"
+          class="text-xs text-red-600">First name is required.</div>
+      </div>
+      <div class="space-y-2">
+        <label class="block text-sm font-medium text-gray-700">Last Name:</label>
+        <input type="text" formControlName="last_name"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <div *ngIf="signupForm.get('last_name')?.touched && signupForm.get('last_name')?.invalid"
+          class="text-xs text-red-600">Last name is required.</div>
+      </div>
+      <div class="space-y-2">
+        <label class="block text-sm font-medium text-gray-700">Username:</label>
+        <input type="text" formControlName="username"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <div *ngIf="signupForm.get('username')?.touched && signupForm.get('username')?.hasError('required')"
+          class="text-xs text-red-600">Username is required.</div>
+        <div *ngIf="signupForm.get('username')?.touched && signupForm.get('username')?.hasError('minlength')"
+          class="text-xs text-red-600">Username must be at least 3 characters.</div>
+        <div *ngIf="signupForm.get('username')?.touched && signupForm.get('username')?.hasError('maxlength')"
+          class="text-xs text-red-600">Username is too long.</div>
+      </div>
       <div class="space-y-2">
         <label class="block text-sm font-medium text-gray-700">Email:</label>
-        <input type="email" [(ngModel)]="email" name="email" required 
-               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <input type="email" formControlName="email"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <div *ngIf="signupForm.get('email')?.touched && signupForm.get('email')?.hasError('required')"
+          class="text-xs text-red-600">Email is required.</div>
+        <div *ngIf="signupForm.get('email')?.touched && signupForm.get('email')?.hasError('email')"
+          class="text-xs text-red-600">Enter a valid email.</div>
       </div>
       <div class="space-y-2">
         <label class="block text-sm font-medium text-gray-700">Password:</label>
-        <input type="password" [(ngModel)]="password" name="password" required 
-               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <input type="password" formControlName="password"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <div *ngIf="signupForm.get('password')?.touched && signupForm.get('password')?.hasError('required')"
+          class="text-xs text-red-600">Password is required.</div>
+        <div *ngIf="signupForm.get('password')?.touched && signupForm.get('password')?.hasError('minlength')"
+          class="text-xs text-red-600">Password must be at least 6 characters.</div>
       </div>
       <div class="space-y-2">
         <label class="block text-sm font-medium text-gray-700">Confirm Password:</label>
-        <input type="password" [(ngModel)]="confirmPassword" name="confirmPassword" required 
-               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <input type="password" formControlName="confirmPassword"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <div *ngIf="signupForm.get('confirmPassword')?.touched && signupForm.hasError('passwordMismatch')"
+          class="text-xs text-red-600">Passwords do not match.</div>
       </div>
-      <button type="submit" [disabled]="loading" 
-              class="w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
+      <button type="submit" [disabled]="loading || signupForm.invalid"
+        class="w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
         {{ loading ? 'Signing up...' : 'Sign Up' }}
       </button>
-      <div *ngIf="error" class="p-3 text-sm text-red-600 bg-red-100 rounded-md">{{ error }}</div>
-      <div *ngIf="message" class="p-3 text-sm text-green-600 bg-green-100 rounded-md">{{ message }}</div>
     </form>
     <p class="text-center text-sm text-gray-600">
       <a routerLink="/signin" class="text-blue-600 hover:underline">Already have an account?</a>

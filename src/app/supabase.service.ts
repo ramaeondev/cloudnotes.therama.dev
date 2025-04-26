@@ -53,13 +53,14 @@ export class SupabaseService {
   }
 
   /** AUTH METHODS **/
-  async signUp(email: string, password: string): Promise<AuthResponse> {
+  async signUp(email: string, password: string, metadata?: Record<string, any>): Promise<AuthResponse> {
     try {
       const response = await this.supabase.auth.signUp({ 
         email, 
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/confirm-email`
+          emailRedirectTo: `${window.location.origin}/confirm-email`,
+          data: metadata || {}
         }
       });
       
