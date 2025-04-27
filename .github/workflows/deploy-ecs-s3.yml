@@ -8,6 +8,9 @@ on:
 jobs:
   build-push-deploy:
     runs-on: ubuntu-latest
+    env:
+      AWS_REGION: us-east-1
+
     steps:
       - name: Capture start time
         run: echo "START_TIME=$(date +%s)" >> $GITHUB_ENV
@@ -18,6 +21,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_GLOBAL }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_GLOBAL }}
+          aws-region: ${{ env.AWS_REGION }}
+  
       - name: Authenticate with AWS ECR Public
         run: |
           aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
@@ -29,13 +39,6 @@ jobs:
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_GLOBAL }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_GLOBAL }}
-          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Build and push Docker image
         env:
