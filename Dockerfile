@@ -16,7 +16,7 @@ FROM nginx:alpine
 RUN rm -rf /usr/share/nginx/html/*
 
 # Copy built Angular app from previous stage
-COPY --from=build /app/dist/cloudnotes-angular.therama.dev /usr/share/nginx/html
+COPY --from=build /app/dist/cloudnotes-angular.therama.dev/browser/. /usr/share/nginx/html/
 
 # Copy custom nginx config
 COPY nginx.conf /etc/nginx/nginx.conf
