@@ -63,7 +63,11 @@ jobs:
             docker pull public.ecr.aws/r5p8n8t0/cloudnotes/frontend:${{ github.sha }}
             docker stop cloudnotes-frontend || true
             docker rm cloudnotes-frontend || true
-            docker run -d --name cloudnotes-frontend -p 80:80 public.ecr.aws/r5p8n8t0/cloudnotes/frontend:${{ github.sha }}
+            docker run -d \
+              --name cloudnotes-frontend \
+              -p 80:80 -p 443:443 \
+              -v /etc/letsencrypt:/etc/letsencrypt:ro \
+              public.ecr.aws/r5p8n8t0/cloudnotes/frontend:${{ github.sha }}
 
       - name: Log and Update Deployment
         if: always()
