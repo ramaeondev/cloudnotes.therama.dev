@@ -1,4 +1,4 @@
-name: Build and Deploy Angular App to EC2 via Docker
+name: Build and Deploy Angular App to EC2 via Docker/ECR setup
 
 on:
   push:
@@ -64,8 +64,6 @@ jobs:
             docker stop cloudnotes-frontend || true
             docker rm cloudnotes-frontend || true
             docker run -d --name cloudnotes-frontend -p 80:80 public.ecr.aws/r5p8n8t0/cloudnotes/frontend:${{ github.sha }}
-      
-  
 
       - name: Log and Update Deployment
         if: always()
