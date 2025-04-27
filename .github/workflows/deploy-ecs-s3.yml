@@ -41,12 +41,15 @@ jobs:
             ${{ runner.os }}-buildx-
 
       - name: Build and push Docker image
-        env:
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build --cache-from=type=local,src=/tmp/.buildx-cache --cache-to=type=local,dest=/tmp/.buildx-cache -t public.ecr.aws/r5p8n8t0/cloudnotes/frontend:latest -t public.ecr.aws/r5p8n8t0/cloudnotes/frontend:${IMAGE_TAG} .
-          docker push public.ecr.aws/r5p8n8t0/cloudnotes/frontend:latest
-          docker push public.ecr.aws/r5p8n8t0/cloudnotes/frontend:${IMAGE_TAG}
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            public.ecr.aws/r5p8n8t0/cloudnotes/frontend:latest
+            public.ecr.aws/r5p8n8t0/cloudnotes/frontend:${{ github.sha }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
 
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
