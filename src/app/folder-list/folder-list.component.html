@@ -1,49 +1,56 @@
-<!-- folder-list.component.html -->
-<mat-list>
-  <ng-container *ngFor="let folder of folders">
-    <ng-container *ngTemplateOutlet="folderTemplate; context: { folder: folder }"></ng-container>
-  </ng-container>
-</mat-list>
+<!-- Folder Tree View -->
+<div class="folder-tree">
+  <ng-container *ngTemplateOutlet="nodeTemplate; context: { nodes: folderTree }"></ng-container>
+</div>
 
-<ng-template #folderTemplate let-folder="folder">
-  <mat-list-item>
-    <div class="folder-row">
-      <button mat-icon-button (click)="toggleFolder(folder.id)">
-        <mat-icon>{{ isExpanded(folder.id) ? 'expand_less' : 'chevron_right' }}</mat-icon>
-      </button>
-
-      <span>{{ folder.name }}</span>
-
-      <button mat-icon-button [matMenuTriggerFor]="folderMenu">
-        <mat-icon>more_vert</mat-icon>
-      </button>
-      <mat-menu #folderMenu="matMenu">
-        <button mat-menu-item (click)="startRename(folder)">
-          <mat-icon>edit</mat-icon>
-          Rename
+<!-- Recursive Template for Tree Nodes -->
+<ng-template #nodeTemplate let-nodes="nodes">
+  <ul class="tree-list">
+    <li *ngFor="let node of nodes" class="tree-item" [ngClass]="{'expanded': isExpanded(node.id)}">
+      <div class="node-content">
+        <!-- Node Icon - now using the icon property directly from the node -->
+        <i class="fas" [ngClass]="node.type === 'folder' ? (isExpanded(node.id) ? 'fa-folder-open' : 'fa-folder') : node.icon"></i>
+        
+        <!-- Node Name -->
+        <span class="node-name" (click)="node.type === 'folder' ? toggleNode(node.id) : downloadFile(node)">
+          {{ node.name }}
+        </span>
+        
+        <!-- Context Menu Button -->
+        <button class="menu-button" [matMenuTriggerFor]="menu">
+          <i class="fas fa-ellipsis-v"></i>
         </button>
-        <button mat-menu-item (click)="deleteFolder(folder)">
-          <mat-icon>delete</mat-icon>
-          Delete
-        </button>
-        <button mat-menu-item (click)="onCreate(folder)">
-          <mat-icon>create_new_folder</mat-icon>
-          New Folder
-        </button>
-      </mat-menu>
-    </div>
-  </mat-list-item>
-
-  <div *ngIf="isExpanded(folder.id)" class="nested-content">
-    <mat-list dense>
-      <mat-list-item *ngFor="let file of folder.files">
-        <mat-icon>note</mat-icon>
-        {{ file.name }}
-      </mat-list-item>
-    </mat-list>
-
-    <ng-container *ngFor="let child of folder.children">
-      <ng-container *ngTemplateOutlet="folderTemplate; context: { folder: child }"></ng-container>
-    </ng-container>
-  </div>
+        
+        <!-- Context Menu -->
+        <mat-menu #menu="matMenu">
+          <ng-container *ngIf="node.type === 'folder'">
+            <button mat-menu-item *ngFor="let item of getFolderMenuItems(node)" (click)="item.action()">
+              <i class="fas" [ngClass]="item.icon"></i>
+              <span>{{ item.label }}</span>
+            </button>
+          </ng-container>
+          <ng-container *ngIf="node.type === 'file'">
+            <button mat-menu-item *ngFor="let item of getFileMenuItems(node)" (click)="item.action()">
+              <i class="fas" [ngClass]="item.icon"></i>
+              <span>{{ item.label }}</span>
+            </button>
+          </ng-container>
+        </mat-menu>
+      </div>
+      
+      <!-- Children (if folder and expanded) -->
+      <div *ngIf="node.type === 'folder' && isExpanded(node.id) && node.children && node.children.length > 0" class="node-children">
+        <ng-container *ngTemplateOutlet="nodeTemplate; context: { nodes: node.children }"></ng-container>
+      </div>
+    </li>
+  </ul>
 </ng-template>
+
+<!-- Empty state when no folders/files -->
+<div *ngIf="folderTree.length === 0" class="empty-state">
+  <i class="fas fa-folder-open"></i>
+  <p>No folders or files found</p>
+  <button mat-raised-button color="primary" (click)="createRootFolder()">
+    Create your first folder
+  </button>
+</div>

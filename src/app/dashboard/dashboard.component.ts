@@ -2,9 +2,7 @@ import { Component, OnInit, signal, WritableSignal } from '@angular/core';
 import { SupabaseService } from '../services/supabase.service';
 import { NewsletterService } from '../services/newsletter.service';
 import { User } from '@supabase/supabase-js';
-import { useCreateFolder } from '../utils/useCreateFolder';
 import { FolderService } from '../services/folder.service';
-import { Folder } from '../models/ folder.interface';
 
 @Component({
   selector: 'app-dashboard',
@@ -56,7 +54,7 @@ export class DashboardComponent implements OnInit {
 
       // Create root folder if this is the user's first login and the root folder doesn't exist
       if (meta['isFirstLogin'] && !meta['is_root_folder_created'] && typeof user.email === 'string') {
-        await this.createRootFolder(user);
+        await this.createRootFolder();
       }
 
       // If both is_root_folder_created and is_news_letter_subscribed are true, update isFirstLogin to false
@@ -68,7 +66,7 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  async createRootFolder(user: User) {
+  async createRootFolder() {
     try {
       await this.folderService.createRootFolder();
       await this.supabase.updateUserMetadata({ is_root_folder_created: true });

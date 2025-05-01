@@ -4,7 +4,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { SupabaseService } from './supabase.service';
-import { Folder } from '../models/ folder.interface';
+import { Folder, FolderTreeResponse } from '../models/folder.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +13,7 @@ export class FolderService {
   private CREATE_FOLDER_URL = environment.supabase_url.replace(/\/$/, '') + '/functions/v1/create-folder';
   private CREATE_ROOT_FOLDER_URL = environment.supabase_url.replace(/\/$/, '') + '/functions/v1/create-root-folder';
   private GET_FOLDER_STRUCTURE_URL = `${environment.supabase_url}/functions/v1/fetch-folder-structure`;
+  private FETCH_FILES_AND_FOLDERS_URL = `${environment.supabase_url}/functions/v1/fetch-files-folders`;
   private supabase: SupabaseClient;
 
   constructor(
@@ -90,4 +91,15 @@ deleteFolder(id: string) {
   return firstValueFrom(this.http.delete(`${this.GET_FOLDER_STRUCTURE_URL}/delete-folder/${id}`));
 }
 
+async fetchFoldersAndFiles(): Promise<FolderTreeResponse> {
+  try {
+    const response = await firstValueFrom(
+      this.http.get<FolderTreeResponse>(this.FETCH_FILES_AND_FOLDERS_URL)
+    );
+    return response;
+  } catch (error) {
+    console.error('Error fetching folder and file data:', error);
+    throw error;
+  }
+}
 }
