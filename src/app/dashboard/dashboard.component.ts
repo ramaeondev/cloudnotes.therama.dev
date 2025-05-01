@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, WritableSignal } from '@angular/core';
-import { SupabaseService } from '../supabase.service';
+import { SupabaseService } from '../services/supabase.service';
 import { NewsletterService } from '../services/newsletter.service';
 import { User } from '@supabase/supabase-js';
 

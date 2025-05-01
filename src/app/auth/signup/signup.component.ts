@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { SupabaseService } from '../../supabase.service';
+import { SupabaseService } from '../../services/supabase.service';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 

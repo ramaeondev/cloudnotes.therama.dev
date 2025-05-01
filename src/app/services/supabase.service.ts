@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient, AuthChangeEvent, Session, User, AuthResponse, AuthTokenResponse } from '@supabase/supabase-js';
-import { environment } from '../environments/environment';
+import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 
