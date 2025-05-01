@@ -14,23 +14,22 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
 import { LogoAppnameComponent } from '../shared/logo-appname/logo-appname.component';
+import { FolderListComponent } from '../folder-list/folder-list.component';
+import { SharedModule } from '../shared.module';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
-    DashboardComponent
+    DashboardComponent,
+    FolderListComponent
   ],
   imports: [
     CommonModule,
     DashboardRoutingModule,
-    MatToolbarModule,
-    MatSidenavModule,
-    MatIconModule,
-    MatButtonModule,
-    MatMenuModule,
-    MatListModule,
-    MatDividerModule,
-    FontAwesomeModule,
-    LogoAppnameComponent
+    LogoAppnameComponent,
+    SharedModule,
+    FormsModule,
+    ReactiveFormsModule 
   ]
 })
 export class DashboardModule { }

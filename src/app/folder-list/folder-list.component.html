@@ -1,0 +1,49 @@
+<!-- folder-list.component.html -->
+<mat-list>
+  <ng-container *ngFor="let folder of folders">
+    <ng-container *ngTemplateOutlet="folderTemplate; context: { folder: folder }"></ng-container>
+  </ng-container>
+</mat-list>
+
+<ng-template #folderTemplate let-folder="folder">
+  <mat-list-item>
+    <div class="folder-row">
+      <button mat-icon-button (click)="toggleFolder(folder.id)">
+        <mat-icon>{{ isExpanded(folder.id) ? 'expand_less' : 'chevron_right' }}</mat-icon>
+      </button>
+
+      <span>{{ folder.name }}</span>
+
+      <button mat-icon-button [matMenuTriggerFor]="folderMenu">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #folderMenu="matMenu">
+        <button mat-menu-item (click)="startRename(folder)">
+          <mat-icon>edit</mat-icon>
+          Rename
+        </button>
+        <button mat-menu-item (click)="deleteFolder(folder)">
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+        <button mat-menu-item (click)="onCreate(folder)">
+          <mat-icon>create_new_folder</mat-icon>
+          New Folder
+        </button>
+      </mat-menu>
+    </div>
+  </mat-list-item>
+
+  <div *ngIf="isExpanded(folder.id)" class="nested-content">
+    <mat-list dense>
+      <mat-list-item *ngFor="let file of folder.files">
+        <mat-icon>note</mat-icon>
+        {{ file.name }}
+      </mat-list-item>
+    </mat-list>
+
+    <ng-container *ngFor="let child of folder.children">
+      <ng-container *ngTemplateOutlet="folderTemplate; context: { folder: child }"></ng-container>
+    </ng-container>
+  </div>
+</ng-template>
