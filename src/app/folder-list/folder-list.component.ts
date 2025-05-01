@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, OnInit, signal, WritableSignal } from '@angular/core';
 import { Files, Folder, TreeNode } from '../models/folder.interface';
 import { FolderService } from '../services/folder.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -8,7 +8,7 @@ import { FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { UploadFilesDialogueComponent } from '../upload-files-dialogue/upload-files-dialogue.component';
 import { getFileIcon } from '../utils/file-utils';
-
+import { NgxSpinnerService } from 'ngx-spinner';
 @Component({
   selector: 'app-folder-list',
   standalone: false,
@@ -28,9 +28,15 @@ export class FolderListComponent implements OnInit {
   expandedFolders: Set<string> = new Set();
   folderTree: TreeNode[] = [];
 
-  constructor(private folderService: FolderService, private dialog: MatDialog, private supabase: SupabaseService,private toastr: ToastrService) {}
+  constructor(private readonly folderService: FolderService, private readonly dialog: MatDialog, 
+    private readonly supabase: SupabaseService,private readonly toastr: ToastrService, private readonly spinner: NgxSpinnerService) {}
   
-  async ngOnInit(): Promise<void> {
+    ngOnInit(): void {
+      this.initAsync();
+    }
+
+  async initAsync() {
+    this.spinner.show();
     const { data: { user }, error } = await this.supabase.supabase.auth.getUser();
     this.userId = user?.id ?? '';
     this.loadFolderAndFileData();
@@ -45,7 +51,7 @@ export class FolderListComponent implements OnInit {
       this.toastr.success('Folder created successfully');
       await this.loadFolderAndFileData(); // Reload the folder list 
     } catch (e) {
-      console.error('Error creating folder:', this.createFolder.error());
+      console.error('Error creating folder:', e);
       this.toastr.error('Error creating folder');
     }
   }
@@ -112,12 +118,15 @@ export class FolderListComponent implements OnInit {
   }
 
   async loadFolderAndFileData(): Promise<void> {
+    this.spinner.show();
     try {
       const { folders, files } = await this.folderService.fetchFoldersAndFiles();
       this.folderTree = this.mapToTreeNodes(folders, files);
       console.log('Folder Tree:', this.folderTree);
     } catch (error) {
       console.error('Error loading folder and file data:', error);
+    } finally {
+      this.spinner.hide();
     }
   }
 
@@ -209,7 +218,7 @@ export class FolderListComponent implements OnInit {
       { 
         label: 'New Folder', 
         icon: 'fa-folder-plus', 
-        action: () => this.onCreate(node) 
+        action: () => { void this.onCreate(node); }
       },
       { 
         label: 'Upload File', 

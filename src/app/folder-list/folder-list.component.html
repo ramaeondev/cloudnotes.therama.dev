@@ -1,3 +1,4 @@
+
 <!-- Folder Tree View -->
 <div class="folder-tree">
   <ng-container *ngTemplateOutlet="nodeTemplate; context: { nodes: folderTree }"></ng-container>
@@ -12,7 +13,14 @@
         <i class="fas" [ngClass]="node.type === 'folder' ? (isExpanded(node.id) ? 'fa-folder-open' : 'fa-folder') : node.icon"></i>
         
         <!-- Node Name -->
-        <span class="node-name" (click)="node.type === 'folder' ? toggleNode(node.id) : downloadFile(node)">
+        <span
+          class="node-name"
+          (click)="node.type === 'folder' ? toggleNode(node.id) : downloadFile(node)"
+          (keydown)="
+            $event.key === 'Enter' || $event.key === ' ' ?
+              (node.type === 'folder' ? toggleNode(node.id) : downloadFile(node)) : null
+          "
+        >
           {{ node.name }}
         </span>
         
