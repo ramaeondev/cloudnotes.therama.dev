@@ -58,4 +58,5 @@ export interface RenameObject {
   old_path: string;
   new_path: string,
   is_folder: boolean
+  folder_id?: string;
 }

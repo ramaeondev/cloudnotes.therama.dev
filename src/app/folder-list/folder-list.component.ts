@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Files, Folder, FolderProperties, TreeNode } from '../models/folder.interface';
+import { Files, Folder, FolderProperties, RenameObject, TreeNode } from '../models/folder.interface';
 import { FolderService } from '../services/folder.service';
 import { MatDialog } from '@angular/material/dialog';
 import { SupabaseService } from '../services/supabase.service';
@@ -259,23 +259,16 @@ export class FolderListComponent implements OnInit {
   }
 
   showProperties(node: TreeNode): void {
-    console.log(`Showing properties for: ${node.name}`);
-    console.log(node);
-    const path = node.originalData?.user_id && node.originalData?.path
-    ? `${node.originalData.user_id}/${node.originalData.path}`
-    : undefined;
-    console.log(path);    
-    if(path){
-      this.spinner.show();
-    this.folderService.getProperties(path).subscribe((data: FolderProperties)=>{
+    const s3KeyPrefix = (node.originalData && 's3_key_prefix' in node.originalData)
+    ? node.originalData.s3_key_prefix
+    : node?.originalData?.user_id + '/' + 'Root';
+    this.spinner.show();
+    this.folderService.getProperties(s3KeyPrefix).subscribe((data: FolderProperties)=>{
       console.log(data);
       this.spinner.hide();
       this.openPropertiesDialogue(node, data);
       })
-    } else {
-      console.log('path is undefined');
     }
-  }
 
   async createRootFolder() {
     try {
@@ -369,32 +362,59 @@ export class FolderListComponent implements OnInit {
   renameFileOrFolder(data: TreeNode, newName: string) {
     console.log(data);
     console.log(newName);
-    let newFileName;
+  
+    let newFileName = '';
+    let input: RenameObject;
+  
     if (data.originalData && data.type === 'folder' && 's3_key_prefix' in data.originalData) {
-      newFileName = data.originalData.s3_key_prefix.replace(/[^/]+\/$/, '') + newName + '/';
-    } else if (data.originalData && data.type === 'file' && 's3_key' in data.originalData) {
-      newFileName = data.originalData.s3_key.replace(/[^/]+\/$/, '') + newName;
+      const currentPrefix = data.originalData.s3_key_prefix;
+      const parentPath = currentPrefix.replace(/[^/]+\/$/, ''); // remove the last folder segment
+      newFileName = `${parentPath}${newName}/`;
+  
+      input = {
+        old_path: currentPrefix,
+        new_path: newFileName,
+        is_folder: true,
+        folder_id: data.id
+      };
+    } 
+    else if (data.originalData && data.type === 'file' && 's3_key' in data.originalData) {
+      const currentKey = data.originalData.s3_key;
+      const lastSlashIndex = currentKey.lastIndexOf('/');
+      const lastDotIndex = currentKey.lastIndexOf('.');
+  
+      const path = currentKey.substring(0, lastSlashIndex + 1);
+      const extension = lastDotIndex > lastSlashIndex ? currentKey.substring(lastDotIndex) : ''; // only extract if dot is after last slash
+  
+      newFileName = `${path}${newName}${extension}`;
+  
+      input = {
+        old_path: currentKey,
+        new_path: newFileName,
+        is_folder: false
+      };
+    } 
+    else {
+      this.toastr.error('Invalid file or folder.');
+      return;
     }
-    let input = {
-      old_path: data.type === 'folder' ? (data.originalData as Folder).s3_key_prefix : (data.originalData as Files).s3_key,
-      new_path: newFileName ?? '',
-      is_folder: data.type === 'folder'
-    };
+  
     if (!newFileName) {
       this.toastr.error('New name is invalid.');
       return;
     }
+  
     this.spinner.show();
     this.folderService.renameFileOrFolder(input).subscribe({
-      next: (data) => {
-        console.log(data);
+      next: () => {
         this.spinner.hide();
         this.loadFolderAndFileData();
       },
       error: (error) => {
-        console.log(error);
+        console.error(error);
         this.spinner.hide();
       }
     });
   }
+  
 }
