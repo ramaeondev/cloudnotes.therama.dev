@@ -100,8 +100,8 @@ $file-color: #607d8b;
 
 // Animation for expanding/collapsing
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 // Empty state styling
@@ -192,7 +192,7 @@ $file-color: #607d8b;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  100% { transform: rotate(360deg); }
 }
 
 // Responsive adjustments
