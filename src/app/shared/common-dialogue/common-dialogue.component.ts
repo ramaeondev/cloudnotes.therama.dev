@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -30,7 +30,7 @@ export interface DialogData {
 })
 export class CommonDialogueComponent {
 
-
+  newFolderName = new FormControl('');
 
   constructor(
     public dialogRef: MatDialogRef<CommonDialogueComponent>,
@@ -43,7 +43,11 @@ export class CommonDialogueComponent {
 
     // Close the dialog and pass back a response
     onConfirm(): void {
-      this.dialogRef.close(true);
+      if (this.data.id === 'create_new_folder') {
+        this.dialogRef.close(this.newFolderName.value);
+      } else {
+        this.dialogRef.close(true);
+      }
     }
   
     onCancel(): void {

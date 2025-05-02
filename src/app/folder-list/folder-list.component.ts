@@ -18,8 +18,6 @@ import { CommonDialogueComponent } from '../shared/common-dialogue/common-dialog
 })
 export class FolderListComponent implements OnInit {
   createFolder = useCreateFolder();
-  name: WritableSignal<string> = signal('My Folder');
-  parentId: WritableSignal<string> = signal('');
   newFolderName = new FormControl('');
   renameFolderName = new FormControl('');
   editingFolderId: string | null = null;
@@ -38,12 +36,10 @@ export class FolderListComponent implements OnInit {
     }
 
 
-  async onCreate(folder: TreeNode ) {
+  async onCreate(folder: TreeNode, newFolderName:string ) {
     this.spinner.show();
-    this.parentId.set(folder.id);
-    this.name.set('test'+ Math.floor(Math.random() * 1000));
     try {
-      const result = await this.createFolder.createFolder(this.name(), this.parentId());
+      const result = await this.createFolder.createFolder(newFolderName, folder.id);
       console.log('Folder created!', result);
       this.toastr.success('Folder created successfully');
       await this.loadFolderAndFileData(); // Reload the folder list 
@@ -226,7 +222,7 @@ export class FolderListComponent implements OnInit {
       { 
         label: 'New Folder', 
         icon: 'fa-folder-plus', 
-        action: () => { void this.onCreate(node); }
+        action: () => this.openCreateNewFolderDialogue(node)
       },
       { 
         label: 'Upload File', 
@@ -366,6 +362,25 @@ export class FolderListComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed', result);
     });
+  }
 
+  openCreateNewFolderDialogue(data: TreeNode) {
+    const dialogRef = this.dialog.open(CommonDialogueComponent, {
+      data: {
+        id: 'create_new_folder',
+        title: 'Create New Folder',
+        message: 'Enter the name of the new folder:',
+        confirmText: 'Create',
+        cancelText: 'Cancel',
+        data: data
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed', result);
+      if (result) {
+        this.onCreate(data, result);
+      }
+    });
   }
 }
