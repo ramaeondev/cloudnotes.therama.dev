@@ -16,7 +16,6 @@ import { NgxSpinnerService } from 'ngx-spinner';
   styleUrl: './folder-list.component.scss'
 })
 export class FolderListComponent implements OnInit {
-  userId!: string;
   createFolder = useCreateFolder();
   name: WritableSignal<string> = signal('My Folder');
   parentId: WritableSignal<string> = signal('');
@@ -32,17 +31,12 @@ export class FolderListComponent implements OnInit {
     private readonly supabase: SupabaseService,private readonly toastr: ToastrService, private readonly spinner: NgxSpinnerService) {}
   
     ngOnInit(): void {
-      this.initAsync();
+      this.loadFolderAndFileData();
     }
 
-  async initAsync() {
-    this.spinner.show();
-    const { data: { user }, error } = await this.supabase.supabase.auth.getUser();
-    this.userId = user?.id ?? '';
-    this.loadFolderAndFileData();
-  }
 
   async onCreate(folder: TreeNode ) {
+    this.spinner.show();
     this.parentId.set(folder.id);
     this.name.set('test'+ Math.floor(Math.random() * 1000));
     try {
@@ -53,6 +47,8 @@ export class FolderListComponent implements OnInit {
     } catch (e) {
       console.error('Error creating folder:', e);
       this.toastr.error('Error creating folder');
+    } finally{
+      this.spinner.hide();
     }
   }
 

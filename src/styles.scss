@@ -1,12 +1,12 @@
 /* You can add global styles to this file, and also import other style files */
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@use 'tailwindcss/base';
+@use 'tailwindcss/components';
+@use 'tailwindcss/utilities';
 
-/* Import Material theme */
-@import '@angular/material/prebuilt-themes/indigo-pink.css';
+/* use Material theme */
+@use '@angular/material/prebuilt-themes/indigo-pink.css';
 
-/* Import Font Awesome */
+/* use Font Awesome */
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
 html, body { height: 100%; }

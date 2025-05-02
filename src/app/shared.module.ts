@@ -8,7 +8,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { NgxSpinnerModule } from "ngx-spinner";
 
   
 @NgModule({
@@ -23,7 +22,6 @@ import { NgxSpinnerModule } from "ngx-spinner";
     MatMenuModule,
     MatListModule,
     MatDividerModule,
-    NgxSpinnerModule,
   ],
   exports: [
     MatInputModule,
@@ -35,7 +33,6 @@ import { NgxSpinnerModule } from "ngx-spinner";
     MatMenuModule,
     MatListModule,
     MatDividerModule,
-    NgxSpinnerModule,
   ],
   providers: []
 })

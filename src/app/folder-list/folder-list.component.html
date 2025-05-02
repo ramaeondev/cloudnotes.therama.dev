@@ -25,23 +25,27 @@
         </span>
         
         <!-- Context Menu Button -->
-        <button class="menu-button" [matMenuTriggerFor]="menu">
+        <button class="menu-button" [matMenuTriggerFor]="contextMenu" #menuTrigger="matMenuTrigger">
           <i class="fas fa-ellipsis-v"></i>
         </button>
         
         <!-- Context Menu -->
-        <mat-menu #menu="matMenu">
+        <mat-menu #contextMenu="matMenu">
           <ng-container *ngIf="node.type === 'folder'">
-            <button mat-menu-item *ngFor="let item of getFolderMenuItems(node)" (click)="item.action()">
+            @for (item of getFolderMenuItems(node); track item.label) {
+            <button mat-menu-item (click)="item.action(); menuTrigger.closeMenu(); $event.stopPropagation();">
               <i class="fas" [ngClass]="item.icon"></i>
               <span>{{ item.label }}</span>
             </button>
+          }
           </ng-container>
           <ng-container *ngIf="node.type === 'file'">
-            <button mat-menu-item *ngFor="let item of getFileMenuItems(node)" (click)="item.action()">
+            @for(item of getFileMenuItems(node); track item.label) {
+            <button mat-menu-item (click)="item.action(); menuTrigger.closeMenu(); $event.stopPropagation();">
               <i class="fas" [ngClass]="item.icon"></i>
               <span>{{ item.label }}</span>
             </button>
+          }
           </ng-container>
         </mat-menu>
       </div>

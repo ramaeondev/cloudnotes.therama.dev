@@ -48,7 +48,8 @@
               "node_modules/ngx-toastr/toastr.css",
               "src/tailwind.css",
               "src/styles.scss",
-              "src/styles/menu-theme.scss"
+              "src/styles/menu-theme.scss",
+              "node_modules/ngx-spinner/animations/ball-scale-multiple.css"
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
@@ -123,7 +124,8 @@
               "node_modules/ngx-toastr/toastr.css",
               "src/tailwind.css",
               "src/styles.scss",
-              "src/styles/menu-theme.scss"
+              "src/styles/menu-theme.scss",
+              "node_modules/ngx-spinner/animations/ball-scale-multiple.css"
             ],
             "scripts": []
           }
