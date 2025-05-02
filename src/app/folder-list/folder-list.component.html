@@ -13,21 +13,12 @@
         <i class="fas"
           [ngClass]="node.type === 'folder' ? (isExpanded(node.id) ? 'fa-folder-open' : 'fa-folder') : node.icon"></i>
 
-        <!-- Node Name (inline editing) -->
-        <span *ngIf="editingNodeId !== node.id"
-              class="node-name"
-              (click)="node.type === 'folder' ? toggleNode(node.id) : downloadFile(node)"
-              (dblclick)="startEditing(node)"
-              (keydown)="onNodeNameKeydown($event, node)">
+          <span class="node-name" (click)="node.type === 'folder' ? toggleNode(node.id) : downloadFile(node)" (keydown)="
+          $event.key === 'Enter' || $event.key === ' ' ?
+            (node.type === 'folder' ? toggleNode(node.id) : downloadFile(node)) : null
+          ">
           {{ node.name }}
-        </span>
-        <input *ngIf="editingNodeId === node.id"
-               class="node-edit-input"
-               [(ngModel)]="editingNodeName"
-               (blur)="finishEditing(node)"
-               (keydown.enter)="finishEditing(node)"
-               (keydown.escape)="cancelEditing()"
-               autofocus />
+          </span>
 
         <!-- Context Menu Button -->
         <button class="menu-button" [matMenuTriggerFor]="contextMenu" #menuTrigger="matMenuTrigger">
@@ -75,3 +66,4 @@
     Create your first folder
   </button>
 </div>
+

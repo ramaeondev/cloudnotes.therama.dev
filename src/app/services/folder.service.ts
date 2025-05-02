@@ -4,7 +4,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { SupabaseService } from './supabase.service';
-import { Folder, FolderTreeResponse } from '../models/folder.interface';
+import { Folder, FolderProperties, FolderTreeResponse, RenameObject } from '../models/folder.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +15,7 @@ export class FolderService {
   private readonly GET_FOLDER_STRUCTURE_URL = `${environment.supabase_url}/functions/v1/fetch-folder-structure`;
   private readonly FETCH_FILES_AND_FOLDERS_URL = `${environment.supabase_url}/functions/v1/fetch-files-folders`;
   private readonly FETCH_FILES_AND_FOLDERS_PROPERTIES_URL = `${environment.supabase_url}/functions/v1/get-folder-properties`;
+  private readonly RENAME_OBJECT_URL = `${environment.supabase_url}/functions/v1/rename-object`;
 
   private readonly supabase: SupabaseClient;
 
@@ -105,7 +106,11 @@ async fetchFoldersAndFiles(): Promise<FolderTreeResponse> {
   }
 }
 
-getProperties(path: string):Observable<any>{
-  return this.http.post<Observable<any>>(this.FETCH_FILES_AND_FOLDERS_PROPERTIES_URL,{  "folder_path": path});
+getProperties(path: string): Observable<FolderProperties> {
+  return this.http.post<FolderProperties>(this.FETCH_FILES_AND_FOLDERS_PROPERTIES_URL, { "folder_path": path });
+}
+
+renameFileOrFolder(data: RenameObject):Observable<any> {
+  return this.http.post<any>(this.RENAME_OBJECT_URL,data);
 }
 }

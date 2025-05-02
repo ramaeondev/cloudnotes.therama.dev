@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Files, Folder, FolderProperties, TreeNode } from '../models/folder.interface';
 import { FolderService } from '../services/folder.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -25,8 +25,7 @@ export class FolderListComponent implements OnInit {
   newFolderNameMap: { [folderId: string]: string } = {};
   expandedFolders: Set<string> = new Set();
   folderTree: TreeNode[] = [];
-  editingNodeId: string | null = null;
-  editingNodeName: string = '';
+
 
   constructor(private readonly folderService: FolderService, private readonly dialog: MatDialog, 
     private readonly supabase: SupabaseService,private readonly toastr: ToastrService, private readonly spinner: NgxSpinnerService) {}
@@ -51,17 +50,7 @@ export class FolderListComponent implements OnInit {
     }
   }
 
-  async renameFolder(folder: Folder, newName: string) {
-    try {
-      // Call Folder Service to rename folder here
-      console.log('Folder renamed:', folder.id, newName);
-      await this.loadFolderAndFileData(); // Reload the folder list
-      this.toastr.success('Folder renamed successfully');
-    } catch (error) {
-      console.error('Error renaming folder:', error);
-      this.toastr.error('Error renaming folder');
-    }
-  }
+
 
   async deleteFolder(folder: Folder) {
     try {
@@ -73,13 +62,6 @@ export class FolderListComponent implements OnInit {
       console.error('Error deleting folder:', error);
       this.toastr.error('Error deleting folder');
     }
-  }
-
-
-
-  startRename(folder: Folder) {
-    this.editingFolderId = folder.id;
-    this.renameFolderName.setValue(folder.name);
   }
 
   cancelRename() {
@@ -304,31 +286,6 @@ export class FolderListComponent implements OnInit {
     }
   }
 
-  startEditing(node: any) {
-    this.editingNodeId = node.id;
-    this.editingNodeName = node.name;
-  }
-  
-  finishEditing(node: any) {
-    if (this.editingNodeName.trim() && this.editingNodeName !== node.name) {
-      node.name = this.editingNodeName.trim();
-      // TODO: Call your update API/service here if needed
-    }
-    this.editingNodeId = null;
-    this.editingNodeName = '';
-  }
-  
-  cancelEditing() {
-    this.editingNodeId = null;
-    this.editingNodeName = '';
-  }
-
-  onNodeNameKeydown(event: KeyboardEvent, node: any) {
-    if (event.key === 'Enter' || event.key === ' ') {
-      this.startEditing(node);
-      event.preventDefault();
-    }
-  }
 
   openPropertiesDialogue(node: TreeNode, data: FolderProperties) {
     const dialogRef = this.dialog.open(CommonDialogueComponent, {
@@ -380,6 +337,63 @@ export class FolderListComponent implements OnInit {
       console.log('The dialog was closed', result);
       if (result) {
         this.onCreate(data, result);
+      }
+    });
+  }
+
+  startEditing(data: TreeNode) {
+    console.log(data);
+    const is_folder = data.type === 'folder';
+    const title = `Rename ${is_folder ? 'Folder' : 'File'}`;
+    const message = `Enter the new name for the ${is_folder ? 'folder' : 'file'}:`;
+
+    const dialogRef = this.dialog.open(CommonDialogueComponent, {
+      data: {
+        id: 'rename_file_folder',
+        title: title,
+        message: message,
+        confirmText: 'Confirm',
+        cancelText: 'Cancel',
+        data: data
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed', result);
+      if (result) {
+        this.renameFileOrFolder(data, result);
+      }
+    });
+  }
+
+  renameFileOrFolder(data: TreeNode, newName: string) {
+    console.log(data);
+    console.log(newName);
+    let newFileName;
+    if (data.originalData && data.type === 'folder' && 's3_key_prefix' in data.originalData) {
+      newFileName = data.originalData.s3_key_prefix.replace(/[^/]+\/$/, '') + newName + '/';
+    } else if (data.originalData && data.type === 'file' && 's3_key' in data.originalData) {
+      newFileName = data.originalData.s3_key.replace(/[^/]+\/$/, '') + newName;
+    }
+    let input = {
+      old_path: data.type === 'folder' ? (data.originalData as Folder).s3_key_prefix : (data.originalData as Files).s3_key,
+      new_path: newFileName ?? '',
+      is_folder: data.type === 'folder'
+    };
+    if (!newFileName) {
+      this.toastr.error('New name is invalid.');
+      return;
+    }
+    this.spinner.show();
+    this.folderService.renameFileOrFolder(input).subscribe({
+      next: (data) => {
+        console.log(data);
+        this.spinner.hide();
+        this.loadFolderAndFileData();
+      },
+      error: (error) => {
+        console.log(error);
+        this.spinner.hide();
       }
     });
   }

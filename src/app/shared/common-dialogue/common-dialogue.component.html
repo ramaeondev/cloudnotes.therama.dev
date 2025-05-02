@@ -75,3 +75,29 @@
     
     </div>
   }
+  
+  @if(data.id === 'rename_file_folder'){
+    <div class="dialog-wrapper p-4 space-y-4">
+  
+      <h2 mat-dialog-title>{{ data.title }}</h2>
+    
+      <!-- Content -->
+      <div class="dialog-content space-y-2">
+        <mat-form-field appearance="fill" class="w-full">
+          <mat-label>{{data.data.type === 'folder' ? 'Folder' : 'File'}} Name</mat-label>
+          <input matInput [formControl]="newFolderName" [placeholder]="data.data.type === 'folder' ? 'Enter New Folder Name' : 'Enter New File Name'">
+        </mat-form-field>
+      </div>
+    
+      <!-- Actions -->
+      <mat-dialog-actions class="flex justify-end space-x-2">
+        <button mat-button (click)="onCancel()">
+          {{ data.cancelText || 'Cancel' }}
+        </button>
+        <button mat-raised-button color="primary" (click)="onConfirm()">
+          {{ data.confirmText || 'OK' }}
+        </button>
+      </mat-dialog-actions>
+    
+    </div>
+  }

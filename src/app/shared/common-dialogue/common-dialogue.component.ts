@@ -43,7 +43,7 @@ export class CommonDialogueComponent {
 
     // Close the dialog and pass back a response
     onConfirm(): void {
-      if (this.data.id === 'create_new_folder') {
+      if (this.data.id === 'create_new_folder' || this.data.id === 'rename_file_folder') {
         this.dialogRef.close(this.newFolderName.value);
       } else {
         this.dialogRef.close(true);

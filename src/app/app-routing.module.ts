@@ -6,6 +6,7 @@ import { SignupComponent } from './auth/signup/signup.component';
 import { ConfirmEmailComponent } from './auth/confirm-email/confirm-email.component';
 import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
+import { AuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
   { path: 'signin', component: SigninComponent },
@@ -13,7 +14,7 @@ const routes: Routes = [
   { path: 'confirm-email', component: ConfirmEmailComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
-  { path: 'dashboard', loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule) },
+  { path: 'dashboard', loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule), canActivate: [AuthGuard] },
   { path: '', redirectTo: '/signin', pathMatch: 'full' },
 ];
 

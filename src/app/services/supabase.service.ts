@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { createClient, SupabaseClient, AuthChangeEvent, Session, User, AuthResponse, AuthTokenResponse } from '@supabase/supabase-js';
+import { createClient, SupabaseClient, AuthChangeEvent, Session, User, AuthResponse } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
@@ -9,10 +9,10 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class SupabaseService {
   public supabase: SupabaseClient;
-  private _currentUser = new BehaviorSubject<User | null>(null);
+  private readonly _currentUser = new BehaviorSubject<User | null>(null);
   currentUser$ = this._currentUser.asObservable();
 
-  constructor(private router: Router) {
+  constructor(private readonly router: Router) {
     // Configure Supabase client to work with the Cloudflare proxy worker
     this.supabase = createClient(
       environment.supabase_url,

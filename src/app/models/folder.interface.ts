@@ -12,6 +12,7 @@ export interface Folder {
   files?: Files[];
   type?: string;
   user_id: string;
+  s3_key_prefix: string;
 }
 
 export interface Files {
@@ -47,8 +48,14 @@ export interface TreeNode {
 }
 
 export interface FolderProperties {
-  folder_path: string
+  folder_path: string;
   fileCount: number,
   totalSize: number,
   lastModified: string
+}
+
+export interface RenameObject {
+  old_path: string;
+  new_path: string,
+  is_folder: boolean
 }
