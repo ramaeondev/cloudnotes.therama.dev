@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { SupabaseClient } from '@supabase/supabase-js';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { SupabaseService } from './supabase.service';
 import { Folder, FolderTreeResponse } from '../models/folder.interface';
@@ -10,15 +10,17 @@ import { Folder, FolderTreeResponse } from '../models/folder.interface';
   providedIn: 'root',
 })
 export class FolderService {
-  private CREATE_FOLDER_URL = environment.supabase_url.replace(/\/$/, '') + '/functions/v1/create-folder';
-  private CREATE_ROOT_FOLDER_URL = environment.supabase_url.replace(/\/$/, '') + '/functions/v1/create-root-folder';
-  private GET_FOLDER_STRUCTURE_URL = `${environment.supabase_url}/functions/v1/fetch-folder-structure`;
-  private FETCH_FILES_AND_FOLDERS_URL = `${environment.supabase_url}/functions/v1/fetch-files-folders`;
-  private supabase: SupabaseClient;
+  private readonly CREATE_FOLDER_URL = environment.supabase_url.replace(/\/$/, '') + '/functions/v1/create-folder';
+  private readonly CREATE_ROOT_FOLDER_URL = environment.supabase_url.replace(/\/$/, '') + '/functions/v1/create-root-folder';
+  private readonly GET_FOLDER_STRUCTURE_URL = `${environment.supabase_url}/functions/v1/fetch-folder-structure`;
+  private readonly FETCH_FILES_AND_FOLDERS_URL = `${environment.supabase_url}/functions/v1/fetch-files-folders`;
+  private readonly FETCH_FILES_AND_FOLDERS_PROPERTIES_URL = `${environment.supabase_url}/functions/v1/get-folder-properties`;
+
+  private readonly supabase: SupabaseClient;
 
   constructor(
-    private http: HttpClient,
-    private supabaseService: SupabaseService
+    private readonly http: HttpClient,
+    private readonly supabaseService: SupabaseService
   ) {
     this.supabase = this.supabaseService.supabase;  // Get the SupabaseClient
   }
@@ -101,5 +103,9 @@ async fetchFoldersAndFiles(): Promise<FolderTreeResponse> {
     console.error('Error fetching folder and file data:', error);
     throw error;
   }
+}
+
+getProperties(path: string):Observable<any>{
+  return this.http.post<Observable<any>>(this.FETCH_FILES_AND_FOLDERS_PROPERTIES_URL,{  "folder_path": path});
 }
 }

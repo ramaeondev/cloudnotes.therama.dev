@@ -1,0 +1,51 @@
+@if(data.id === 'folder_properties'){
+<div class="dialog-wrapper p-4 space-y-4">
+
+  <h2 mat-dialog-title>{{ data.title }}</h2>
+
+  <!-- Content -->
+  <div class="dialog-content space-y-2">
+    <div><strong>Folder Path:</strong> {{ data.data.folder_path | stripUserId }}</div>
+    <div><strong>File Count:</strong> {{ data.data.fileCount }}</div>
+    <div><strong>Total Size:</strong> {{ data.data.totalSize | bytesToMb:1 }}</div>
+    <div><strong>Last Modified:</strong> {{ data.data.lastModified | date:'medium' }}</div>
+  </div>
+
+  <!-- Actions -->
+  <mat-dialog-actions class="flex justify-end space-x-2">
+    <button mat-button (click)="onCancel()">
+      {{ data.cancelText || 'Cancel' }}
+    </button>
+    <button mat-raised-button color="primary" (click)="onConfirm()">
+      {{ data.confirmText || 'OK' }}
+    </button>
+  </mat-dialog-actions>
+
+</div>
+}
+
+@if(data.id === 'file_properties'){
+  <div class="dialog-wrapper p-4 space-y-4">
+  
+    <h2 mat-dialog-title>{{ data.title }}</h2>
+  
+    <!-- Content -->
+    <div class="dialog-content space-y-2">
+      <div><strong>File Path:</strong> {{ data.data.s3_key | stripUserId }}</div>
+      <div><strong>File Name:</strong> {{ data.data.name }}</div>
+      <div><strong>Total Size:</strong> {{ data.data.size | bytesToMb:1 }}</div>
+      <div><strong>Last Modified:</strong> {{ data.data.updated_at | date:'medium' }}</div>
+    </div>
+  
+    <!-- Actions -->
+    <mat-dialog-actions class="flex justify-end space-x-2">
+      <button mat-button (click)="onCancel()">
+        {{ data.cancelText || 'Cancel' }}
+      </button>
+      <button mat-raised-button color="primary" (click)="onConfirm()">
+        {{ data.confirmText || 'OK' }}
+      </button>
+    </mat-dialog-actions>
+  
+  </div>
+  }

@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, WritableSignal } from '@angular/core';
-import { Files, Folder, TreeNode } from '../models/folder.interface';
+import { Files, Folder, FolderProperties, TreeNode } from '../models/folder.interface';
 import { FolderService } from '../services/folder.service';
 import { MatDialog } from '@angular/material/dialog';
 import { SupabaseService } from '../services/supabase.service';
@@ -9,6 +9,7 @@ import { ToastrService } from 'ngx-toastr';
 import { UploadFilesDialogueComponent } from '../upload-files-dialogue/upload-files-dialogue.component';
 import { getFileIcon } from '../utils/file-utils';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { CommonDialogueComponent } from '../shared/common-dialogue/common-dialogue.component';
 @Component({
   selector: 'app-folder-list',
   standalone: false,
@@ -26,6 +27,8 @@ export class FolderListComponent implements OnInit {
   newFolderNameMap: { [folderId: string]: string } = {};
   expandedFolders: Set<string> = new Set();
   folderTree: TreeNode[] = [];
+  editingNodeId: string | null = null;
+  editingNodeName: string = '';
 
   constructor(private readonly folderService: FolderService, private readonly dialog: MatDialog, 
     private readonly supabase: SupabaseService,private readonly toastr: ToastrService, private readonly spinner: NgxSpinnerService) {}
@@ -107,9 +110,18 @@ export class FolderListComponent implements OnInit {
     return this.expandedFolders.has(folderId);
   }
 
-  openUploadDialog(folder: Folder): void {
-    this.dialog.open(UploadFilesDialogueComponent, {
+  openUploadDialog(folder: TreeNode): void {
+    console.log('Folder:', folder);
+    const dialogRef = this.dialog.open(UploadFilesDialogueComponent, {
       data: { folder: folder },
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        this.loadFolderAndFileData();
+        this.toastr.success('File(s) uploaded successfully');
+      } else if (result === false) {
+        this.toastr.error('File upload failed. Please try again.');
+      }
     });
   }
 
@@ -184,7 +196,7 @@ export class FolderListComponent implements OnInit {
       { 
         label: 'Rename', 
         icon: 'fa-edit', 
-        action: () => this.renameItem(node) 
+        action: () => this.startEditing(node) 
       },
       { 
         label: 'Move', 
@@ -204,12 +216,12 @@ export class FolderListComponent implements OnInit {
       { 
         label: 'Properties', 
         icon: 'fa-info-circle', 
-        action: () => this.showProperties(node) 
+        action: () => this.showFileProperties(node) 
       }
     ];
   }
 
-  getFolderMenuItems(node: TreeNode): { label: string, icon: string, action: () => void }[] {
+  getFolderMenuItems(node: TreeNode): { label: string, icon: string, action: () => void, disabled?: boolean }[] {
     return [
       { 
         label: 'New Folder', 
@@ -219,32 +231,30 @@ export class FolderListComponent implements OnInit {
       { 
         label: 'Upload File', 
         icon: 'fa-file-upload', 
-        action: () => this.uploadFile(node) 
+        action: () => this.openUploadDialog(node)
       },
       { 
         label: 'Rename', 
         icon: 'fa-edit', 
-        action: () => this.renameItem(node) 
+        action: () => this.startEditing(node),
+        disabled: node.originalData?.is_system
       },
       { 
         label: 'Move', 
         icon: 'fa-folder-open', 
-        action: () => this.moveItem(node) 
+        action: () => this.moveItem(node),
+        disabled: node.originalData?.is_system 
       },
       { 
         label: 'Delete', 
         icon: 'fa-trash-alt', 
-        action: () => this.deleteItem(node) 
-      },
-      { 
-        label: 'Share', 
-        icon: 'fa-share-alt', 
-        action: () => this.shareItem(node) 
+        action: () => this.deleteItem(node),
+        disabled: node.originalData?.is_system
       },
       { 
         label: 'Properties', 
         icon: 'fa-info-circle', 
-        action: () => this.showProperties(node) 
+        action: () => this.showProperties(node)
       }
     ];
   }
@@ -272,10 +282,21 @@ export class FolderListComponent implements OnInit {
 
   showProperties(node: TreeNode): void {
     console.log(`Showing properties for: ${node.name}`);
-  }
-
-  uploadFile(node: TreeNode): void {
-    console.log(`Uploading file to: ${node.name}`);
+    console.log(node);
+    const path = node.originalData?.user_id && node.originalData?.path
+    ? `${node.originalData.user_id}/${node.originalData.path}`
+    : undefined;
+    console.log(path);    
+    if(path){
+      this.spinner.show();
+    this.folderService.getProperties(path).subscribe((data: FolderProperties)=>{
+      console.log(data);
+      this.spinner.hide();
+      this.openPropertiesDialogue(node, data);
+      })
+    } else {
+      console.log('path is undefined');
+    }
   }
 
   async createRootFolder() {
@@ -287,4 +308,64 @@ export class FolderListComponent implements OnInit {
     }
   }
 
+  startEditing(node: any) {
+    this.editingNodeId = node.id;
+    this.editingNodeName = node.name;
+  }
+  
+  finishEditing(node: any) {
+    if (this.editingNodeName.trim() && this.editingNodeName !== node.name) {
+      node.name = this.editingNodeName.trim();
+      // TODO: Call your update API/service here if needed
+    }
+    this.editingNodeId = null;
+    this.editingNodeName = '';
+  }
+  
+  cancelEditing() {
+    this.editingNodeId = null;
+    this.editingNodeName = '';
+  }
+
+  onNodeNameKeydown(event: KeyboardEvent, node: any) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      this.startEditing(node);
+      event.preventDefault();
+    }
+  }
+
+  openPropertiesDialogue(node: TreeNode, data: FolderProperties) {
+    const dialogRef = this.dialog.open(CommonDialogueComponent, {
+      data: {
+        id: 'folder_properties',
+        title: 'Folder Properties',
+        data: data,
+        message: `Folder Path: ${node.originalData?.path}`,
+        confirmText: 'OK',
+        cancelText: 'Cancel'
+      }
+    });
+  
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed', result);
+    });
+  }
+
+  showFileProperties(node: TreeNode){
+    const dialogRef = this.dialog.open(CommonDialogueComponent, {
+      data: {
+        id: 'file_properties',
+        title: 'File Properties',
+        data: node.originalData,
+        message: `File Name: ${node.name}`,
+        confirmText: 'OK',
+        cancelText: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed', result);
+    });
+
+  }
 }

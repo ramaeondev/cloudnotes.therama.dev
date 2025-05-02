@@ -6,11 +6,12 @@ export interface Folder {
   userId: string;
   s3KeyPrefix: string;
   path: string;
-  isSystem: boolean;
+  is_system: boolean;
   isRoot: boolean;
   children?: Folder[];
   files?: Files[];
   type?: string;
+  user_id: string;
 }
 
 export interface Files {
@@ -27,6 +28,8 @@ export interface Files {
   is_archived: boolean;
   content_type: string;
   type?: string;
+  is_system?: boolean;
+  path:string;
 }
 
 export interface FolderTreeResponse {
@@ -41,4 +44,11 @@ export interface TreeNode {
   icon: string; // Add icon property
   children?: TreeNode[]; // Only for folders
   originalData?: Folder | Files; // Optional: link to raw data if needed
+}
+
+export interface FolderProperties {
+  folder_path: string
+  fileCount: number,
+  totalSize: number,
+  lastModified: string
 }

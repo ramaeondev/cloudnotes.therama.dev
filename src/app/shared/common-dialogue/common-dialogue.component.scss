@@ -1,0 +1,92 @@
+.dialog-wrapper {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 1.5rem 2rem;
+  color: #222;
+}
+
+h2[mat-dialog-title] {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: #2d3748;
+  text-align: center;
+}
+
+.dialog-content {
+  background: #f5f7fa;
+  border-radius: 10px;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  font-size: 1.08rem;
+}
+
+.dialog-content div {
+  margin-bottom: 0.7rem;
+  display: flex;
+  align-items: center;
+}
+
+.dialog-content strong {
+  min-width: 130px;
+  color: #253858;
+  font-weight: 600;
+  font-size: 1.07rem;
+}
+
+mat-dialog-actions {
+  padding-top: 0.5rem;
+  border-top: 1px solid #e2e8f0;
+  background: transparent;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.7rem;
+}
+
+button[mat-button] {
+  min-width: 90px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1.5px solid #cbd5e1;
+  background: #f5f7fa;
+  color: #222;
+  box-shadow: none;
+  letter-spacing: 0.04em;
+}
+
+button[mat-button]:hover {
+  background: #e2e8f0;
+}
+
+button[mat-raised-button] {
+  min-width: 90px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 6px;
+  background: #3b5bdb;
+  color: #fff;
+  box-shadow: none;
+  letter-spacing: 0.04em;
+}
+
+button[mat-raised-button]:hover {
+  background: #274690;
+}
+
+@media (max-width: 600px) {
+  .dialog-wrapper {
+    max-width: 98vw;
+    padding: 1rem 0.5rem;
+  }
+  .dialog-content {
+    padding: 0.7rem 0.5rem;
+  }
+  h2[mat-dialog-title] {
+    font-size: 1.1rem;
+  }
+}

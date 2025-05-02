@@ -10,6 +10,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { CommonModule } from '@angular/common';
 import { Folder } from '../models/folder.interface';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'app-upload-files-dialogue',
@@ -28,7 +29,8 @@ export class UploadFilesDialogueComponent {
   constructor(
     public dialogRef: MatDialogRef<UploadFilesDialogueComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private fileUploadService: FileUploadService
+    private readonly fileUploadService: FileUploadService,
+    private readonly spinner: NgxSpinnerService
   ) {
     this.folder = data.folder;
   }
@@ -67,10 +69,18 @@ export class UploadFilesDialogueComponent {
     if (this.files.length === 0) {
       return; // No files selected
     }
-
-    this.fileUploadService.uploadFiles(this.files, this.folder.id).then(() => {
-      this.dialogRef.close();
-    });
+    this.spinner.show();
+    this.fileUploadService.uploadFiles(this.files, this.folder.id)
+      .then(() => {
+        this.dialogRef.close(true); // Indicate success
+      })
+      .catch((error) => {
+        console.error('File upload failed:', error);
+        this.dialogRef.close(false); // Indicate failure
+      })
+      .finally(() => {
+        this.spinner.hide();
+      })
   }
 
 }

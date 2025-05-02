@@ -1,4 +1,3 @@
-
 <!-- Folder Tree View -->
 <div class="folder-tree">
   <ng-container *ngTemplateOutlet="nodeTemplate; context: { nodes: folderTree }"></ng-container>
@@ -7,37 +6,45 @@
 <!-- Recursive Template for Tree Nodes -->
 <ng-template #nodeTemplate let-nodes="nodes">
   <ul class="tree-list">
-    <li *ngFor="let node of nodes" class="tree-item" [ngClass]="{'expanded': isExpanded(node.id)}">
+    @for( node of nodes; track node.id){
+    <li class="tree-item" [ngClass]="{'expanded': isExpanded(node.id)}">
       <div class="node-content">
         <!-- Node Icon - now using the icon property directly from the node -->
-        <i class="fas" [ngClass]="node.type === 'folder' ? (isExpanded(node.id) ? 'fa-folder-open' : 'fa-folder') : node.icon"></i>
-        
-        <!-- Node Name -->
-        <span
-          class="node-name"
-          (click)="node.type === 'folder' ? toggleNode(node.id) : downloadFile(node)"
-          (keydown)="
-            $event.key === 'Enter' || $event.key === ' ' ?
-              (node.type === 'folder' ? toggleNode(node.id) : downloadFile(node)) : null
-          "
-        >
+        <i class="fas"
+          [ngClass]="node.type === 'folder' ? (isExpanded(node.id) ? 'fa-folder-open' : 'fa-folder') : node.icon"></i>
+
+        <!-- Node Name (inline editing) -->
+        <span *ngIf="editingNodeId !== node.id"
+              class="node-name"
+              (click)="node.type === 'folder' ? toggleNode(node.id) : downloadFile(node)"
+              (dblclick)="startEditing(node)"
+              (keydown)="onNodeNameKeydown($event, node)">
           {{ node.name }}
         </span>
-        
+        <input *ngIf="editingNodeId === node.id"
+               class="node-edit-input"
+               [(ngModel)]="editingNodeName"
+               (blur)="finishEditing(node)"
+               (keydown.enter)="finishEditing(node)"
+               (keydown.escape)="cancelEditing()"
+               autofocus />
+
         <!-- Context Menu Button -->
         <button class="menu-button" [matMenuTriggerFor]="contextMenu" #menuTrigger="matMenuTrigger">
           <i class="fas fa-ellipsis-v"></i>
         </button>
-        
+
         <!-- Context Menu -->
         <mat-menu #contextMenu="matMenu">
           <ng-container *ngIf="node.type === 'folder'">
             @for (item of getFolderMenuItems(node); track item.label) {
-            <button mat-menu-item (click)="item.action(); menuTrigger.closeMenu(); $event.stopPropagation();">
+            <button mat-menu-item 
+            [disabled]="item.disabled"
+            (click)="!item.disabled && item.action(); menuTrigger.closeMenu(); $event.stopPropagation();">
               <i class="fas" [ngClass]="item.icon"></i>
               <span>{{ item.label }}</span>
             </button>
-          }
+            }
           </ng-container>
           <ng-container *ngIf="node.type === 'file'">
             @for(item of getFileMenuItems(node); track item.label) {
@@ -45,16 +52,18 @@
               <i class="fas" [ngClass]="item.icon"></i>
               <span>{{ item.label }}</span>
             </button>
-          }
+            }
           </ng-container>
         </mat-menu>
       </div>
-      
+
       <!-- Children (if folder and expanded) -->
-      <div *ngIf="node.type === 'folder' && isExpanded(node.id) && node.children && node.children.length > 0" class="node-children">
+      <div *ngIf="node.type === 'folder' && isExpanded(node.id) && node.children && node.children.length > 0"
+        class="node-children">
         <ng-container *ngTemplateOutlet="nodeTemplate; context: { nodes: node.children }"></ng-container>
       </div>
     </li>
+  }
   </ul>
 </ng-template>
 

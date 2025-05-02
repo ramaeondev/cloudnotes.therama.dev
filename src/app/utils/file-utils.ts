@@ -31,6 +31,8 @@ export function getFileIcon(fileName: string | null): string {
     case 'gif':
     case 'bmp':
     case 'svg':
+    case 'webp':
+    case 'ico':
       return 'fa-file-image';
     case 'mp4':
     case 'mov':
