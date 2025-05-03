@@ -9,6 +9,7 @@ import { FolderListComponent } from './folder-list/folder-list.component';
 import { SharedModule } from '../shared.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxSpinnerModule } from "ngx-spinner";
+import { TruncatePipe } from '../pipes/truncate.pipe';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { NgxSpinnerModule } from "ngx-spinner";
     SharedModule,
     FormsModule,
     ReactiveFormsModule ,
-    NgxSpinnerModule
+    NgxSpinnerModule,
+    TruncatePipe
   ]
 })
 export class DashboardModule { }
