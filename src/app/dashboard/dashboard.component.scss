@@ -1,105 +1,38 @@
 .dashboard-container {
-  display: flex;
   height: 100vh;
 }
 
 .dashboard-sidenav {
-  width: 250px;
+  width: 25%;
+  min-width: 250px; /* optional min width */
+  max-width: 400px; /* optional max width */
+  border-right: 1px solid #e0e0e0;
+  background-color: #fafafa;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  padding: 0;
-  position: relative;
 }
 
-.dashboard-content {
-  flex: 1;
-  padding: 32px;
-  margin-left: 250px;  // Matches the sidenav width
-  background-color: #f4f4f4;  // Temporary background for visibility
-}
-
-.sidenav-profile {
-  padding: 16px;
-  margin-top: auto;
-  width: 100%;
+.sidenav-content {
   display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  z-index: 10; 
+  flex-direction: column;
+  height: 100%;
 }
 
-.sidenav-header {
+.file-list-container {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.sidenav-footer {
+  padding: 1rem;
+  border-top: 1px solid #ccc;
+}
+
+.profile-btn {
   width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px 0 16px 20px;
-  border-bottom: none;
+  justify-content: flex-start;
 }
 
-.logo-appname-row {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
-
-.logo-cloud {
-  font-size: 2rem;
-  color: #90caf9;
-  vertical-align: middle;
-}
-
-.app-title {
-  font-size: 2.1em;
-  font-weight: 900;
-  font-family: 'Inter', 'Roboto', sans-serif;
-  color: #1976d2;
-  letter-spacing: 1.2px;
-  vertical-align: middle;
-  width: 100%;
-  text-align: left;
-  line-height: 1.1;
-}
-
-
-.logo-small {
-  width: 32px;
-  height: 32px;
-}
-
-.app-name {
-  font-size: 1.3em;
-  font-weight: 600;
-}
-
-.spacer {
-  flex: 1 1 auto;
-}
-
-.dashboard-content {
-  padding: 32px;
-}
-
-.hide-desktop {
-  display: none;
-}
-
-@media (max-width: 800px) {
-  .dashboard-sidenav {
-    width: 60vw;
-  }
-
-  .dashboard-content {
-    padding: 16px;
-  }
-
-  .hide-desktop {
-    display: inline-flex;
-  }
+mat-sidenav-content {
+  width: 75%;
 }

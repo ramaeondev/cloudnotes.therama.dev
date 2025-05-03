@@ -1,24 +1,30 @@
 <mat-sidenav-container class="dashboard-container" autosize>
-  <mat-sidenav mode="side" opened class="dashboard-sidenav">
-    <div class="sidenav-header">
-  <app-logo-appname></app-logo-appname>
-</div>
-    <mat-nav-list>
-      <app-folder-list></app-folder-list>
-    </mat-nav-list>
-    <div class="sidenav-profile">
-      <button mat-button [matMenuTriggerFor]="profileMenu" class="profile-btn" [disabled]="!userName()" [ngClass]="{ 'disabled': !userName() }"> 
-        <mat-icon>account_circle</mat-icon>
-        <span>{{ userName() }}</span>
-      </button>
-      <mat-menu #profileMenu="matMenu">
-        <button mat-menu-item [routerLink]="['/dashboard/profile']">Profile</button>
-        <button mat-menu-item [routerLink]="['/dashboard/settings']">Settings</button>
-        <button mat-menu-item (click)="logout()">Logout</button>
-      </mat-menu>
+  <mat-sidenav #sidenav mode="side" opened class="dashboard-sidenav">
+    <div class="sidenav-content">
+      <div class="sidenav-header">
+        <app-logo-appname></app-logo-appname>
+      </div>
+
+      <div class="file-list-container">
+        <mat-nav-list>
+          <app-folder-list></app-folder-list>
+        </mat-nav-list>
+      </div>
+
+      <div class="sidenav-footer">
+        <button mat-button [matMenuTriggerFor]="profileMenu" class="profile-btn">
+          <mat-icon>account_circle</mat-icon>
+          <span>{{ userName() | truncate:15 }}</span>
+        </button>
+        <mat-menu #profileMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/dashboard/profile']">Profile</button>
+          <button mat-menu-item [routerLink]="['/dashboard/settings']">Settings</button>
+          <button mat-menu-item (click)="logout()">Logout</button>
+        </mat-menu>
+      </div>
     </div>
   </mat-sidenav>
   <mat-sidenav-content>
-      <router-outlet></router-outlet>
+    <router-outlet></router-outlet>
   </mat-sidenav-content>
 </mat-sidenav-container>
