@@ -9,7 +9,7 @@ import { SupabaseService } from './supabase.service';
   providedIn: 'root',
 })
 
-export class FileUploadService {
+export class FileService {
 
   private readonly uploadEndpoint = environment.supabase_url.replace(/\/$/, '') + '/functions/v1/upload-files';
   private readonly getSingedUrl = environment.supabase_url.replace(/\/$/, '') + '/functions/v1/generate-s3-url-download';

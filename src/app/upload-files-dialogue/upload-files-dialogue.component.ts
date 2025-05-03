@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { FileUploadService } from '../services/file-upload.service';
+import { FileService } from '../services/file.service';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -29,7 +29,7 @@ export class UploadFilesDialogueComponent {
   constructor(
     public dialogRef: MatDialogRef<UploadFilesDialogueComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private readonly fileUploadService: FileUploadService,
+    private readonly FileService: FileService,
     private readonly spinner: NgxSpinnerService
   ) {
     this.folder = data.folder;
@@ -70,7 +70,7 @@ export class UploadFilesDialogueComponent {
       return; // No files selected
     }
     this.spinner.show();
-    this.fileUploadService.uploadFiles(this.files, this.folder.id)
+    this.FileService.uploadFiles(this.files, this.folder.id)
       .then(() => {
         this.dialogRef.close(true); // Indicate success
       })

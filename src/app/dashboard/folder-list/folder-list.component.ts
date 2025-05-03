@@ -10,7 +10,7 @@ import { UploadFilesDialogueComponent } from '../../upload-files-dialogue/upload
 import { getFileIcon } from '../../utils/file-utils';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { CommonDialogueComponent } from '../../shared/common-dialogue/common-dialogue.component';
-import { FileUploadService } from '../../services/file-upload.service';
+import { FileService } from '../../services/file.service';
 import { Router } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
 import { PreviewService } from '../../services/preview.service';
@@ -41,7 +41,7 @@ export class FolderListComponent implements OnInit {
 
   constructor(private readonly folderService: FolderService, private readonly dialog: MatDialog, private readonly previewService: PreviewService, 
     private readonly router: Router,private readonly sanitizer: DomSanitizer, private readonly sharedService: SharedService,
-    private readonly supabase: SupabaseService,private readonly toastr: ToastrService, private readonly spinner: NgxSpinnerService, private readonly fileService: FileUploadService) {}
+    private readonly supabase: SupabaseService,private readonly toastr: ToastrService, private readonly spinner: NgxSpinnerService, private readonly fileService: FileService) {}
   
     ngOnInit(): void {
       this.loadFolderAndFileData();
