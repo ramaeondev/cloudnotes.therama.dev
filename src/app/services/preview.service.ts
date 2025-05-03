@@ -81,7 +81,9 @@ export class PreviewService {
     this.officePreviewSubject.next({ officeUrl: null, fileName: '', showPreview: false });
     this.videoPreviewSubject.next({ videoUrl: null, fileName: '', showPreview: false });
     this.audioPreviewSubject.next({ audioUrl: '', fileName: '', showPreview: false });
+    this._hasActivePreview.next(false);
   }
 
-
+  private _hasActivePreview = new BehaviorSubject<boolean>(false);
+  hasActivePreview$ = this._hasActivePreview.asObservable();
 }

@@ -1,8 +1,8 @@
 <!-- Backdrop that closes when clicked -->
-<!-- <div *ngIf="previewService.hasActivePreview$ | async" 
+<div *ngIf="previewService.hasActivePreview$ | async" 
      class="preview-backdrop" 
      (click)="closeAllPreviews()">
-</div> -->
+</div>
 
 <!-- Image Preview -->
 <ng-container *ngIf="(previewService.imagePreview$ | async)?.showPreview">

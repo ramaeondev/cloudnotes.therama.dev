@@ -410,81 +410,143 @@ export class FolderListComponent implements OnInit {
     });
   }
   
-  getPreviewUrl(node: TreeNode) {
+  getPreviewUrl(node: TreeNode): void {
+    // Validate input
+    if (!node?.originalData) {
+      this.toastr.error('File information not available');
+      return;
+    }
+  
     const originalData = node.originalData;
-    if (!originalData) {
-      console.error('Original data is undefined');
-      return;
-    }
+    
+    // Check if folder
     if (this.isFolder(originalData)) {
-      console.error('Cannot download a folder');
+      this.toastr.warning('Folders cannot be previewed');
       return;
     }
+  
+    // Validate S3 key
     const s3Key = originalData.s3_key;
     if (!s3Key) {
-      console.error('S3 key is undefined');
+      this.toastr.error('File location not found');
       return;
     }
-    console.log('Downloading file with S3 key:', s3Key);
+  
+    console.log('Previewing file with S3 key:', s3Key);
+    this.previewService.closeAllPreviews();
     this.spinner.show();
-    let fileName = s3Key.split('/').pop() || 'download';
-    let fileExtension = fileName.split('.').pop() || '';
+  
     this.fileService.handlePreviewFile(s3Key).subscribe({
-      next: (url) => {
+      next: ({ url, contentType, filename }) => {
         this.spinner.hide();
         console.log('Preview URL:', url);
-        if (this.fileTypes.image.includes(fileExtension)) {
-          // Image preview
-          this.previewService.sendImagePreview({
-            imageUrl: url,
-            fileName: fileName,
-            showPreview: true
-          });
+  
+        // Use filename from response if available, otherwise extract from S3 key
+        const displayName = filename || s3Key.split('/').pop() || 'file';
+        
+        // Determine how to handle based on content type
+        if (contentType.startsWith('image/')) {
+          this.handleImagePreview(url, displayName);
+        } 
+        else if (contentType === 'application/pdf') {
+          this.handlePdfPreview(url, displayName);
         }
-        else if (fileExtension === 'pdf') {
-          // PDF preview
-          this.previewService.sendPdfPreview({
-            pdfUrl: this.sanitizer.bypassSecurityTrustResourceUrl(url),
-            fileName: fileName,
-            showPreview: true
-          });
+        else if (this.isOfficeFile(contentType)) {
+          this.handleOfficePreview(url, displayName);
         }
-        else if (this.fileTypes.office.includes(fileExtension)) {
-          // Office preview using Microsoft Viewer
-          const officeUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
-          this.previewService.sendOfficePreview({
-            officeUrl: this.sanitizer.bypassSecurityTrustResourceUrl(officeUrl),
-            fileName: fileName,
-            showPreview: true
-          });
+        else if (contentType.startsWith('video/')) {
+          this.handleVideoPreview(url, displayName, contentType);
         }
-        else if (this.fileTypes.video.includes(fileExtension)) {
-          // Video preview
-          this.previewService.sendVideoPreview({
-            videoUrl: this.sanitizer.bypassSecurityTrustResourceUrl(url),
-            fileName: fileName,
-            showPreview: true
-          });
-        }
-        else if (this.fileTypes.audio.includes(fileExtension)) {
-          // Audio preview
-          this.previewService.sendAudioPreview({
-            audioUrl: url,
-            fileName: fileName,
-            showPreview: true
-          });
+        else if (contentType.startsWith('audio/')) {
+          this.handleAudioPreview(url, displayName, contentType);
         }
         else {
-          // Default behavior (download or open in new tab)
-          window.open(url, '_blank');
+          this.handleUnknownFileType(url);
         }
-        this.router.navigate(['file-preview']);
       },
       error: (err) => {
-        console.error('Download failed:', err);
         this.spinner.hide();
-        this.toastr.error('Download failed. Please try again.');
+        this.toastr.error(err.message || 'Preview failed. Please try again.');
       }
+    });
+  }
+  
+  // Helper methods for different file types
+  private handleImagePreview(url: string, filename: string): void {
+    this.previewService.sendImagePreview({
+      imageUrl: url,
+      fileName: filename,
+      showPreview: true
+    });
+    this.navigateToPreview();
+  }
+  
+  private handlePdfPreview(url: string, filename: string): void {
+    // Solution 1: Open in new tab (most reliable)
+    // window.open(url, '_blank');
+    
+    // OR Solution 2: Use embedded viewer
+    this.previewService.sendPdfPreview({
+      pdfUrl: this.sanitizer.bypassSecurityTrustResourceUrl(url),
+      fileName: filename,
+      showPreview: true
+    });
+    this.navigateToPreview();
+  }
+  
+  private handleOfficePreview(url: string, filename: string): void {
+    const officeUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
+    this.previewService.sendOfficePreview({
+      officeUrl: this.sanitizer.bypassSecurityTrustResourceUrl(officeUrl),
+      fileName: filename,
+      showPreview: true
+    });
+    this.navigateToPreview();
+  }
+  
+  private handleVideoPreview(url: string, filename: string, contentType: string): void {
+    this.previewService.sendVideoPreview({
+      videoUrl: this.sanitizer.bypassSecurityTrustResourceUrl(url),
+      fileName: filename,
+      showPreview: true,
+      fileType: contentType
+    });
+    this.navigateToPreview();
+  }
+  
+  private handleAudioPreview(url: string, filename: string, contentType: string): void {
+    this.previewService.sendAudioPreview({
+      audioUrl: url,
+      fileName: filename,
+      showPreview: true,
+      fileType: contentType
+    });
+    this.navigateToPreview();
+  }
+  
+  private handleUnknownFileType(url: string): void {
+    // For unsupported types, download instead
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+  
+  private isOfficeFile(contentType: string): boolean {
+    return contentType.includes('officedocument') || 
+           contentType.includes('msword') ||
+           contentType.includes('excel') ||
+           contentType.includes('powerpoint');
+  }
+  
+  private navigateToPreview(): void {
+    this.router.navigate(['/file-preview']).catch(err => {
+      console.warn('Navigation cancelled:', err);
+      // Fallback to home if navigation fails
+      this.router.navigate(['/']);
     });
   }
 }

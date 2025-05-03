@@ -70,12 +70,24 @@ export class FileService {
     );
   }
 
-  handlePreviewFile(s3Key: string): Observable<string> {
-    return this.http.post<{ url: string }>(this.getSingedUrlPreview, { s3Key }).pipe(
-      map(response => response.url),
+  /**
+   * Generates a signed URL for previewing a file.
+   * @param s3Key The S3 key of the file to preview.
+   * @returns An observable that emits the signed URL and its content type.
+   */  
+  handlePreviewFile(s3Key: string): Observable<{ url: string; contentType: string; filename: string }> {
+    return this.http.post<{
+      url: string;
+      contentType: string;
+      filename: string;
+    }>(this.getSingedUrlPreview, { s3Key }).pipe(
       catchError((error) => {
         console.error('Error generating signed URL:', error);
-        return throwError(() => new Error('Error generating signed URL'));
+        return throwError(() => new Error(
+          error.error?.message || 
+          error.message || 
+          'Failed to generate preview URL'
+        ));
       })
     );
   }

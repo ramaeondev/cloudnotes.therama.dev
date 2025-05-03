@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PreviewService } from '../../services/preview.service';
 import { CommonModule } from '@angular/common';
-import { DomSanitizer } from '@angular/platform-browser';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-file-preview',
@@ -17,8 +17,9 @@ export class FilePreviewComponent {
     public previewService: PreviewService, private sanitizer: DomSanitizer
   ) { }
 
-  getSafeUrl(url: string) {
-    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  getSafeUrl(url: string): SafeResourceUrl {
+    const fileUrl = `${url}#toolbar=0&navpanes=0&scrollbar=0`;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(fileUrl);
   }
 
   closeAllPreviews() {

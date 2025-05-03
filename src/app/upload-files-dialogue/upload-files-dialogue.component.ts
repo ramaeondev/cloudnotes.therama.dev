@@ -29,7 +29,7 @@ export class UploadFilesDialogueComponent {
   constructor(
     public dialogRef: MatDialogRef<UploadFilesDialogueComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private readonly FileService: FileService,
+    private readonly fileService: FileService,
     private readonly spinner: NgxSpinnerService
   ) {
     this.folder = data.folder;
@@ -70,7 +70,7 @@ export class UploadFilesDialogueComponent {
       return; // No files selected
     }
     this.spinner.show();
-    this.FileService.uploadFiles(this.files, this.folder.id)
+    this.fileService.uploadFiles(this.files, this.folder.id)
       .then(() => {
         this.dialogRef.close(true); // Indicate success
       })
