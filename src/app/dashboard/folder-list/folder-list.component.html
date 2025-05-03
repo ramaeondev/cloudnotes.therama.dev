@@ -13,9 +13,9 @@
         <i class="fas"
           [ngClass]="node.type === 'folder' ? (isExpanded(node.id) ? 'fa-folder-open' : 'fa-folder') : node.icon"></i>
 
-          <span class="node-name" (click)="node.type === 'folder' ? toggleNode(node.id) : downloadFile(node)" (keydown)="
+          <span class="node-name" (click)="node.type === 'folder' ? toggleNode(node.id) : getPreviewUrl(node)" (keydown)="
           $event.key === 'Enter' || $event.key === ' ' ?
-            (node.type === 'folder' ? toggleNode(node.id) : downloadFile(node)) : null
+            (node.type === 'folder' ? toggleNode(node.id) : getPreviewUrl(node)) : null
           ">
           {{ node.name }}
           </span>
@@ -49,14 +49,14 @@
               <i class="fas fa-trash-alt"></i>
               <span>Delete</span>
             </button>
-            <button mat-menu-item (click)="showProperties(node)">
+            <button mat-menu-item (click)="showFolderProperties(node)">
               <i class="fas fa-info-circle"></i>
               <span>Properties</span>
             </button>
           }
           
           @if(node.type === 'file') {
-            <button mat-menu-item (click)="downloadFile(node)">
+            <button mat-menu-item (click)="onDownloadFile(node)">
               <i class="fas fa-download"></i>
               <span>Download</span>
             </button>

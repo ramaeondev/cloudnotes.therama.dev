@@ -1,0 +1,84 @@
+<!-- Backdrop that closes when clicked -->
+<div *ngIf="previewService.hasActivePreview$ | async" 
+     class="preview-backdrop" 
+     (click)="closeAllPreviews()">
+</div>
+
+<!-- Image Preview -->
+<ng-container *ngIf="(previewService.imagePreview$ | async)?.showPreview">
+  <div class="preview-modal">
+    <div class="modal-header">
+      <h3>{{ (previewService.imagePreview$ | async)?.fileName }}</h3>
+      <button (click)="closeAllPreviews()" aria-label="Close preview">×</button>
+    </div>
+    <div class="preview-content">
+      <img [src]="(previewService.imagePreview$ | async)?.imageUrl" 
+           [alt]="(previewService.imagePreview$ | async)?.fileName"
+           class="preview-image">
+    </div>
+  </div>
+</ng-container>
+
+<!-- PDF Preview -->
+<ng-container *ngIf="(previewService.pdfPreview$ | async)?.showPreview">
+  <div class="preview-modal">
+    <div class="modal-header">
+      <h3>{{ (previewService.pdfPreview$ | async)?.fileName }}</h3>
+      <button (click)="closeAllPreviews()" aria-label="Close preview">×</button>
+    </div>
+    <div class="preview-content">
+      <iframe [src]="getSafeUrl((previewService.pdfPreview$ | async)?.pdfUrl)" 
+              title="PDF document preview"
+              class="preview-iframe"></iframe>
+    </div>
+  </div>
+</ng-container>
+
+<!-- Office Preview -->
+<ng-container *ngIf="(previewService.officePreview$ | async)?.showPreview">
+  <div class="preview-modal">
+    <div class="modal-header">
+      <h3>{{ (previewService.officePreview$ | async)?.fileName }}</h3>
+      <button (click)="closeAllPreviews()" aria-label="Close preview">×</button>
+    </div>
+    <div class="preview-content">
+      <iframe [src]="getSafeUrl((previewService.officePreview$ | async)?.officeUrl)" 
+              title="Office document preview"
+              class="preview-iframe"></iframe>
+    </div>
+  </div>
+</ng-container>
+
+<!-- Video Preview -->
+<ng-container *ngIf="(previewService.videoPreview$ | async)?.showPreview">
+  <div class="preview-modal">
+    <div class="modal-header">
+      <h3>{{ (previewService.videoPreview$ | async)?.fileName }}</h3>
+      <button (click)="closeAllPreviews()" aria-label="Close preview">×</button>
+    </div>
+    <div class="preview-content">
+      <video controls autoplay class="preview-video">
+        <source [src]="getSafeUrl((previewService.videoPreview$ | async)?.videoUrl)" 
+                [type]="(previewService.videoPreview$ | async)?.fileType">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  </div>
+</ng-container>
+
+<!-- Audio Preview -->
+<ng-container *ngIf="(previewService.audioPreview$ | async) as audioPreview">
+  <div *ngIf="audioPreview.showPreview && audioPreview.audioUrl" class="preview-modal">
+    <div class="modal-header">
+      <h3>{{ audioPreview.fileName }}</h3>
+      <button (click)="closeAllPreviews()" aria-label="Close preview">×</button>
+    </div>
+    <div class="preview-content">
+      <audio controls autoplay class="preview-audio">
+        <source [src]="audioPreview.audioUrl" 
+                [type]="audioPreview.fileType">
+        Your browser does not support the audio element.
+      </audio>
+    </div>
+  </div>
+</ng-container>

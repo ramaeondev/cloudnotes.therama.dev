@@ -1,0 +1,7 @@
+@if(showPreview){
+<h1>FileName : {{fileName}}</h1>
+<button (click)="closePreview()">Close</button>
+<div class="image-preview">
+    <img [src]="imageUrl" alt="Image Preview" />
+</div>
+}

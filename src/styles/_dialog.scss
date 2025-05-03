@@ -1,0 +1,253 @@
+.cdk-overlay-pane.custom-mat-dialog-panel {
+  max-width: 100% !important;
+  width: 100% !important;
+  height: 100%;
+
+  &.right-drawer-outer {
+    max-width: 100% !important;
+  }
+  mat-dialog-container,
+  .mat-dialog-container,
+  .mat-mdc-dialog-container {
+    border-radius: $size-12;
+    padding: 0;
+    .mat-mdc-dialog-surface {
+      border-radius: $size-12;
+      overflow: visible;
+    }
+  }
+}
+
+body {
+  .mdc-dialog, .mdc-dialog__scrim {
+    height: initial;
+  }
+}
+
+.mdc-dialog__title::before {
+  display: none !important;
+}
+
+.add-temp-dialog {
+  width: 365px;
+  max-width: 100%;
+}
+.right-drawer {
+  width: 100%;
+  @include flex-combinator(column, nowrap, flex-start, space-between);
+  height: 100%;
+
+  .dialog-header {
+    padding: $size-20 $size-20 0;
+  }
+}
+div[style*="margin-right"] {
+  > .mat-dialog-container,
+  > .mat-mdc-dialog-container {
+    border-radius: 0;
+    padding: 0;
+    .mat-mdc-dialog-surface {
+      border-radius: 0;
+    }
+  }
+}
+
+body {
+  .countable-dialog {
+    .dialog-header {
+      span.badge {
+        font-size: $size-20;
+      }
+    }
+  }
+}
+
+body {
+  .mat-mdc-dialog-container .mdc-dialog__surface {
+    background: transparent;
+    border-radius: $size-16;
+    box-shadow: none;
+    @include flex-combinator(row, nowrap, center, center);
+    overflow: initial;
+
+    .mat-mdc-dialog-component-host {
+      background: $white;
+      border-radius: $size-16;
+      display: initial;
+
+    }
+  }
+  .countable-dialog {
+    max-height: 100%;
+    background: $white;
+    border-radius: $size-16;
+
+    @include flex-combinator(column, nowrap, flex-start, initial);
+    mat-dialog-title,
+    .mat-dialog-title,
+    .mat-mdc-dialog-title {
+      font-family: $font-primary;
+      font-weight: $semibold;
+      color: $gray-9;
+    }
+
+    .dialog-header {
+      width: 100%;
+      margin: 0;
+      position: relative;
+      padding: $size-24 $size-44 0 $size-24;
+      gap: $size-16;
+      @include flex-combinator(column, nowrap, flex-start, space-between);
+      .header-left {
+        width: calc(100% - 30px);
+        gap: $size-20;
+        @include flex-combinator(column, nowrap, flex-start, space-between);
+      }
+      mat-dialog-title,
+      .mat-dialog-title,
+      .mat-mdc-dialog-title {
+        margin: 0;
+        padding-right: $size-10;
+      }
+      .close {
+        transition: 0.3s;
+        position: absolute;
+        top: $size-24;
+        right: $size-24;
+        color: $gray-7;
+        @include sequre(auto);
+        border-width: 0;
+        background-color: transparent;
+        padding: 0;
+        gap: 0;
+        &:hover {
+          color: $error;
+          transition: 0.3s;
+        }
+
+        .fa-regular {
+          font-size: $size-22;
+        }
+      }
+      @media (max-width: 1366px) {
+        padding: $size-15 $size-15 0 $size-15;
+        .close {
+          top: $size-15;
+          right: $size-15;
+        }
+      }
+      &.align-items-center {
+        padding-top: $size-24 !important;
+      }
+    }
+
+    mat-dialog-content,
+    .dialog-body-content,
+    .mat-mdc-dialog-content {
+      flex: 1;
+      height: 100%;
+      max-height: 100%;
+      overflow-y: auto;
+      padding: $size-24;
+      width: 100%;
+      gap: $size-20;
+      margin: 0 auto !important;
+      @include flex-combinator(column, nowrap);
+      @media (max-width: 1366px) {
+        padding: $size-24 $size-15;
+      }
+      &.align-items-center {
+        padding-top: $size-8 !important;
+      }
+    }
+
+    .dialog-footer {
+      min-height: auto;
+      width: 100%;
+      padding: 0 $size-24 $size-24;
+      gap: $size-16;
+      @include flex-combinator(row, wrap);
+      @media (max-width: 1366px) {
+        padding: 0 $size-15 $size-15;
+      }
+      button,
+      .mat-mdc-button-base+.mat-mdc-button-base {
+        flex: 1;
+        margin: 0;
+      }
+    }
+    &.confirmation-dailog {
+      width: 400px;
+      .dialog-header {
+        @include flex-combinator(column, nowrap, center);
+        .title {
+          text-align: center;
+        }
+      }
+      .dialog-body-content {
+        text-align: center;
+        gap: $size-8;
+        margin-top: $size-8;
+        margin-bottom: $size-32;
+        padding-top: $size-8;
+      }
+      @media (max-width: 767px) {
+        width: 100%;
+
+      }
+    }
+
+    &.right-drawer-dialog {
+      .dialog-header {
+        .close {
+          top: $size-8;
+          right: $size-8;
+        }
+      }
+    }
+  }
+}
+
+body {
+  .mat-menu-panel,
+  .mat-mdc-menu-panel {
+    border-radius: $size-8;
+    @extend .card-shadow;
+  }
+  .mat-mdc-dialog-container {
+    .mdc-dialog__content {
+      color: $black;
+    }
+  }
+}
+
+body {
+  .mat-mdc-dialog-container {
+    .ng-dropdown-panel {
+      .ng-dropdown-panel-items {
+        max-height: 18vh;
+      }
+    }
+  }
+}
+.incomplete-trial-bal-icon{
+  width: 22px;
+  height: 22px;
+  flex: none;
+  img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+body .video-container .mat-mdc-dialog-container .mdc-dialog__surface {
+  overflow: unset;
+}
+
+
+
+body .mat-mdc-dialog-container .mdc-dialog__surface app-common-dialog.mat-mdc-dialog-component-host {
+  display: contents;
+  border-radius: 0;
+}

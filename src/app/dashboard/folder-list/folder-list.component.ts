@@ -1,16 +1,20 @@
 import { Component, OnInit } from '@angular/core';
-import { Files, Folder, FolderProperties, RenameObject, TreeNode } from '../models/folder.interface';
-import { FolderService } from '../services/folder.service';
+import { Files, Folder, FolderProperties, RenameObject, TreeNode } from '../../models/folder.interface';
+import { FolderService } from '../../services/folder.service';
 import { MatDialog } from '@angular/material/dialog';
-import { SupabaseService } from '../services/supabase.service';
-import { useCreateFolder } from '../utils/useCreateFolder';
+import { SupabaseService } from '../../services/supabase.service';
+import { useCreateFolder } from '../../utils/useCreateFolder';
 import { FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
-import { UploadFilesDialogueComponent } from '../upload-files-dialogue/upload-files-dialogue.component';
-import { getFileIcon } from '../utils/file-utils';
+import { UploadFilesDialogueComponent } from '../../upload-files-dialogue/upload-files-dialogue.component';
+import { getFileIcon } from '../../utils/file-utils';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { CommonDialogueComponent } from '../shared/common-dialogue/common-dialogue.component';
-import { SharedService } from '../services/shared.service';
+import { CommonDialogueComponent } from '../../shared/common-dialogue/common-dialogue.component';
+import { FileUploadService } from '../../services/file-upload.service';
+import { Router } from '@angular/router';
+import { DomSanitizer } from '@angular/platform-browser';
+import { PreviewService } from '../../services/preview.service';
+import { SharedService } from '../../services/shared.service';
 @Component({
   selector: 'app-folder-list',
   standalone: false,
@@ -26,10 +30,18 @@ export class FolderListComponent implements OnInit {
   newFolderNameMap: { [folderId: string]: string } = {};
   expandedFolders: Set<string> = new Set();
   folderTree: TreeNode[] = [];
+  fileTypes = {
+    image: ['webp', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'bmp', 'tiff'],
+    document: ['pdf', 'txt'],
+    office: ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'],
+    code: ['js', 'ts', 'html', 'css', 'json', 'xml'],
+    audio: ['mp3', 'wav', 'ogg'],
+    video: ['mp4', 'webm', 'mov']
+  };
 
-
-  constructor(private readonly folderService: FolderService, private readonly dialog: MatDialog, private readonly sharedService: SharedService, 
-    private readonly supabase: SupabaseService,private readonly toastr: ToastrService, private readonly spinner: NgxSpinnerService) {}
+  constructor(private readonly folderService: FolderService, private readonly dialog: MatDialog, private readonly previewService: PreviewService, 
+    private readonly router: Router,private readonly sanitizer: DomSanitizer, private readonly sharedService: SharedService,
+    private readonly supabase: SupabaseService,private readonly toastr: ToastrService, private readonly spinner: NgxSpinnerService, private readonly fileService: FileUploadService) {}
   
     ngOnInit(): void {
       this.loadFolderAndFileData();
@@ -167,85 +179,47 @@ export class FolderListComponent implements OnInit {
   
     return rootNodes;
   }
-
-
-
-  getFileMenuItems(node: TreeNode): { label: string, icon: string, action: () => void }[] {
-    return [
-      { 
-        label: 'Download', 
-        icon: 'fa-download', 
-        action: () => this.downloadFile(node) 
+  
+  onDownloadFile(node: TreeNode): void {
+    const originalData = node.originalData;
+    if (!originalData) {
+      console.error('Original data is undefined');
+      return;
+    }
+    if (this.isFolder(originalData)) {
+      console.error('Cannot download a folder');
+      return;
+    }
+    const s3Key = originalData.s3_key;
+    if (!s3Key) {
+      console.error('S3 key is undefined');
+      return;
+    }
+    console.log('Downloading file with S3 key:', s3Key);
+    this.spinner.show();
+    this.fileService.handleFile(s3Key).subscribe({
+      next: (url) => {
+        this.spinner.hide();
+        const fileName = s3Key.split('/').pop() || 'download';
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.target = '_blank'; // Open in new tab if download doesn't work
+        a.rel = 'noopener noreferrer';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          // Revoke the object URL to avoid memory leaks
+          window.URL.revokeObjectURL(url);
+        }, 100);
       },
-      { 
-        label: 'Rename', 
-        icon: 'fa-edit', 
-        action: () => this.startEditing(node) 
-      },
-      { 
-        label: 'Move', 
-        icon: 'fa-folder-open', 
-        action: () => this.moveItem(node) 
-      },
-      { 
-        label: 'Delete', 
-        icon: 'fa-trash-alt', 
-        action: () => this.deleteItem(node) 
-      },
-      { 
-        label: 'Share', 
-        icon: 'fa-share-alt', 
-        action: () => this.shareItem(node) 
-      },
-      { 
-        label: 'Properties', 
-        icon: 'fa-info-circle', 
-        action: () => this.showFileProperties(node) 
+      error: (err) => {
+        console.error('Download failed:', err);
+        this.spinner.hide();
+        this.toastr.error('Download failed. Please try again.');
       }
-    ];
-  }
-
-  getFolderMenuItems(node: TreeNode): { label: string, icon: string, action: () => void, disabled?: boolean }[] {
-    return [
-      { 
-        label: 'New Folder', 
-        icon: 'fa-folder-plus', 
-        action: () => this.openCreateNewFolderDialogue(node)
-      },
-      { 
-        label: 'Upload File', 
-        icon: 'fa-file-upload', 
-        action: () => this.openUploadDialog(node)
-      },
-      { 
-        label: 'Rename', 
-        icon: 'fa-edit', 
-        action: () => this.startEditing(node),
-        disabled: node.originalData?.is_system
-      },
-      { 
-        label: 'Move', 
-        icon: 'fa-folder-open', 
-        action: () => this.moveItem(node),
-        disabled: node.originalData?.is_system 
-      },
-      { 
-        label: 'Delete', 
-        icon: 'fa-trash-alt', 
-        action: () => this.deleteItem(node),
-        disabled: node.originalData?.is_system
-      },
-      { 
-        label: 'Properties', 
-        icon: 'fa-info-circle', 
-        action: () => this.showProperties(node)
-      }
-    ];
-  }
-
-  // Action methods
-  downloadFile(node: TreeNode): void {
-    console.log(`Downloading file: ${node.name}`);
+    });
   }
 
   renameItem(node: TreeNode): void {
@@ -264,16 +238,29 @@ export class FolderListComponent implements OnInit {
     console.log(`Sharing item: ${node.name}`);
   }
 
-  showProperties(node: TreeNode): void {
-    const s3KeyPrefix = (node.originalData && 's3_key_prefix' in node.originalData)
-    ? node.originalData.s3_key_prefix
-    : node?.originalData?.user_id + '/' + 'Root';
+  showFolderProperties(node: TreeNode): void {
+    const originalData = node.originalData;
+    let s3KeyPrefix: string;
+    if (!originalData) {
+      console.error('Original data is undefined');
+      return;
+    }  
+    if (this.isFolder(originalData)) {
+    s3KeyPrefix = originalData.s3_key_prefix || `${originalData.user_id}/Root`;
+    } else {
+      return
+    }
+
     this.spinner.show();
     this.folderService.getProperties(s3KeyPrefix).subscribe((data: FolderProperties)=>{
       console.log(data);
       this.spinner.hide();
       this.openPropertiesDialogue(node, data);
       })
+    }
+
+    isFolder(data: Folder | Files): data is Folder {
+      return (data as Folder).s3_key_prefix !== undefined;
     }
 
   async createRootFolder() {
@@ -423,4 +410,81 @@ export class FolderListComponent implements OnInit {
     });
   }
   
+  getPreviewUrl(node: TreeNode) {
+    const originalData = node.originalData;
+    if (!originalData) {
+      console.error('Original data is undefined');
+      return;
+    }
+    if (this.isFolder(originalData)) {
+      console.error('Cannot download a folder');
+      return;
+    }
+    const s3Key = originalData.s3_key;
+    if (!s3Key) {
+      console.error('S3 key is undefined');
+      return;
+    }
+    console.log('Downloading file with S3 key:', s3Key);
+    this.spinner.show();
+    let fileName = s3Key.split('/').pop() || 'download';
+    let fileExtension = fileName.split('.').pop() || '';
+    this.fileService.handlePreviewFile(s3Key).subscribe({
+      next: (url) => {
+        this.spinner.hide();
+        console.log('Preview URL:', url);
+        if (this.fileTypes.image.includes(fileExtension)) {
+          // Image preview
+          this.previewService.sendImagePreview({
+            imageUrl: url,
+            fileName: fileName,
+            showPreview: true
+          });
+        }
+        else if (fileExtension === 'pdf') {
+          // PDF preview
+          this.previewService.sendPdfPreview({
+            pdfUrl: this.sanitizer.bypassSecurityTrustResourceUrl(url),
+            fileName: fileName,
+            showPreview: true
+          });
+        }
+        else if (this.fileTypes.office.includes(fileExtension)) {
+          // Office preview using Microsoft Viewer
+          const officeUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
+          this.previewService.sendOfficePreview({
+            officeUrl: this.sanitizer.bypassSecurityTrustResourceUrl(officeUrl),
+            fileName: fileName,
+            showPreview: true
+          });
+        }
+        else if (this.fileTypes.video.includes(fileExtension)) {
+          // Video preview
+          this.previewService.sendVideoPreview({
+            videoUrl: this.sanitizer.bypassSecurityTrustResourceUrl(url),
+            fileName: fileName,
+            showPreview: true
+          });
+        }
+        else if (this.fileTypes.audio.includes(fileExtension)) {
+          // Audio preview
+          this.previewService.sendAudioPreview({
+            audioUrl: url,
+            fileName: fileName,
+            showPreview: true
+          });
+        }
+        else {
+          // Default behavior (download or open in new tab)
+          window.open(url, '_blank');
+        }
+        this.router.navigate(['file-preview']);
+      },
+      error: (err) => {
+        console.error('Download failed:', err);
+        this.spinner.hide();
+        this.toastr.error('Download failed. Please try again.');
+      }
+    });
+  }
 }

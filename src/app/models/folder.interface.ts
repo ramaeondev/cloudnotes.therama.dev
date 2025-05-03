@@ -13,6 +13,7 @@ export interface Folder {
   type?: string;
   user_id: string;
   s3_key_prefix: string;
+  s3_key: string;
 }
 
 export interface Files {
@@ -31,6 +32,7 @@ export interface Files {
   type?: string;
   is_system?: boolean;
   path:string;
+  s3_key_prefix: string;
 }
 
 export interface FolderTreeResponse {
