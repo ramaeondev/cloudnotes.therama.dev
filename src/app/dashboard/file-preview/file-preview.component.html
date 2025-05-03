@@ -31,14 +31,14 @@
            
       <!-- PDF Preview -->
       <iframe *ngIf="preview.type === 'pdf'"
-              [src]="getSafeUrl(preview.url)"
+              [src]="preview.url"
               title="PDF document preview"
               class="preview-iframe"
               (load)="onContentLoaded()"></iframe>
               
       <!-- Office Preview -->
       <iframe *ngIf="preview.type === 'office'"
-              [src]="getSafeUrl(preview.url)"
+              [src]="preview.url"
               title="Office document preview"
               class="preview-iframe"
               (load)="onContentLoaded()"></iframe>
@@ -47,7 +47,7 @@
       <video *ngIf="preview.type === 'video'"
              controls autoplay class="preview-video"
              (loadeddata)="onContentLoaded()">
-        <source [src]="getSafeUrl(preview.url)" 
+        <source [src]="preview.url" 
                 [type]="preview.fileType">
       </video>
       

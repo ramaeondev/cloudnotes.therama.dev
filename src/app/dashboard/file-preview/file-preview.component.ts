@@ -94,11 +94,7 @@ export class FilePreviewComponent {
     );
   }
 
-  getSafeUrl(url: string): SafeResourceUrl {
-    return this.sanitizer.bypassSecurityTrustResourceUrl(
-      `${url}#toolbar=0&navpanes=0&scrollbar=0`
-    );
-  }
+
 
   onContentLoaded(): void {
     this.isLoading = false;
