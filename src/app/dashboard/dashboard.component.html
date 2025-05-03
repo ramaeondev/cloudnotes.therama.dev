@@ -1,5 +1,5 @@
 <mat-sidenav-container class="dashboard-container" autosize>
-  <mat-sidenav #sidenav mode="side" opened class="dashboard-sidenav">
+  <mat-sidenav #sidenav mode="side" opened class="dashboard-sidenav" [style.width.%]="sidenavWidth()">
     <div class="sidenav-content">
       <div class="sidenav-header">
         <app-logo-appname></app-logo-appname>
@@ -23,8 +23,11 @@
         </mat-menu>
       </div>
     </div>
+    <div class="resizer" (mousedown)="startResize($event)"></div>
   </mat-sidenav>
   <mat-sidenav-content>
-    <router-outlet></router-outlet>
+    <div class="dashboard-content">
+      <!-- <router-outlet></router-outlet> -->
+    </div>    
   </mat-sidenav-content>
 </mat-sidenav-container>

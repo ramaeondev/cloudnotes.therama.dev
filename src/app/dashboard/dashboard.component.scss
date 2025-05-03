@@ -3,13 +3,12 @@
 }
 
 .dashboard-sidenav {
-  width: 25%;
-  min-width: 250px; /* optional min width */
-  max-width: 400px; /* optional max width */
-  border-right: 1px solid #e0e0e0;
-  background-color: #fafafa;
-  display: flex;
-  flex-direction: column;
+  position: relative;
+  min-width: 200px;
+  max-width: 45%;
+  background: #fafafa;
+  height: 100%;
+  overflow: hidden;
 }
 
 .sidenav-content {
@@ -36,3 +35,36 @@
 mat-sidenav-content {
   width: 75%;
 }
+
+.resizer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 5px;
+  height: 100%;
+  cursor: ew-resize;
+  background-color: transparent;
+  z-index: 1;
+}
+
+.sidenav-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 64px;
+  padding: 0 1rem;
+  color: white;
+  font-weight: 600;
+  font-size: 1.2rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+// .dashboard-content {
+//   background-color: #f5f5f5 !important;
+//   height: 100%;
+//   min-height: 100vh;
+//   padding: 1rem; // optional: for spacing around routed content
+//   box-sizing: border-box;
+//   border: 2px dashed red;
+
+// }

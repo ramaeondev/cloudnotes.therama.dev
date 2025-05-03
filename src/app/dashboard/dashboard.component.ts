@@ -17,6 +17,9 @@ export class DashboardComponent implements OnInit {
   isNewsLetterSubscribed: WritableSignal<boolean> = signal(false);
   isRootFolderCreated: WritableSignal<boolean> = signal(false);
   userName: WritableSignal<string> = signal('');
+  sidenavWidth: WritableSignal<number> = signal<number>(20);
+  private resizing: WritableSignal<boolean> = signal<boolean>(false);
+
 
   constructor(private readonly supabase: SupabaseService, private readonly newsletter: NewsletterService,
     private readonly sharedService: SharedService,
@@ -86,4 +89,26 @@ export class DashboardComponent implements OnInit {
     this.supabase.signOut();
   }
 
+  startResize(event: MouseEvent) {
+    this.resizing.set(true);
+    document.addEventListener('mousemove', this.resizeHandler);
+    document.addEventListener('mouseup', this.stopResize);
+  }
+  
+  resizeHandler = (event: MouseEvent) => {
+    if (!this.resizing) return;
+  
+    const containerWidth = window.innerWidth;
+    const newWidth = (event.clientX / containerWidth) * 100;
+  
+    if (newWidth >= 15 && newWidth <= 45) {
+      this.sidenavWidth.set(newWidth);
+    }
+  };
+  
+  stopResize = () => {
+    this.resizing.set(false);
+    document.removeEventListener('mousemove', this.resizeHandler);
+    document.removeEventListener('mouseup', this.stopResize);
+  };
 }
