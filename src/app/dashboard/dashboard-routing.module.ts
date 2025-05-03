@@ -4,7 +4,6 @@ import { DashboardComponent } from './dashboard.component';
 
 import { ProfileComponent } from '../profile/profile.component';
 import { SettingsComponent } from '../settings/settings.component';
-import { ImagePreviewComponent } from './image-preview/image-preview.component';
 import { FilePreviewComponent } from './file-preview/file-preview.component';
 
 const routes: Routes = [
