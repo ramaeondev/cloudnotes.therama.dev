@@ -10,6 +10,7 @@ import { UploadFilesDialogueComponent } from '../upload-files-dialogue/upload-fi
 import { getFileIcon } from '../utils/file-utils';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { CommonDialogueComponent } from '../shared/common-dialogue/common-dialogue.component';
+import { SharedService } from '../services/shared.service';
 @Component({
   selector: 'app-folder-list',
   standalone: false,
@@ -27,11 +28,16 @@ export class FolderListComponent implements OnInit {
   folderTree: TreeNode[] = [];
 
 
-  constructor(private readonly folderService: FolderService, private readonly dialog: MatDialog, 
+  constructor(private readonly folderService: FolderService, private readonly dialog: MatDialog, private readonly sharedService: SharedService, 
     private readonly supabase: SupabaseService,private readonly toastr: ToastrService, private readonly spinner: NgxSpinnerService) {}
   
     ngOnInit(): void {
       this.loadFolderAndFileData();
+      this.sharedService.trigger$.subscribe((value: boolean) => {
+        if (value) {
+          this.loadFolderAndFileData();
+        }
+      });
     }
 
 

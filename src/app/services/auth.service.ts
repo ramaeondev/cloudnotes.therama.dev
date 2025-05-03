@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 // Import your Supabase client instance
-import { createClient, SupabaseClient, Session } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private supabase: SupabaseClient;
+  private readonly supabase: SupabaseClient;
 
   constructor() {
     this.supabase = createClient(environment.supabase_url, environment.supabase_anon_key);
@@ -22,7 +22,7 @@ export class AuthService {
     if (localToken) return localToken;
 
     // Try Supabase session
-    const { data, error } = await this.supabase.auth.getSession();
+    const { data } = await this.supabase.auth.getSession();
     if (data?.session?.access_token) {
       return data.session.access_token;
     }
