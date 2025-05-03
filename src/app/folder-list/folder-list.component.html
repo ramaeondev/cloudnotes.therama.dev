@@ -21,31 +21,72 @@
           </span>
 
         <!-- Context Menu Button -->
-        <button class="menu-button" [matMenuTriggerFor]="contextMenu" #menuTrigger="matMenuTrigger">
+        <button class="menu-button" [matMenuTriggerFor]="contextMenu" #menuTrigger="matMenuTrigger"
+          (click)="$event.stopPropagation()">
           <i class="fas fa-ellipsis-v"></i>
         </button>
-
-        <!-- Context Menu -->
         <mat-menu #contextMenu="matMenu">
-          <ng-container *ngIf="node.type === 'folder'">
-            @for (item of getFolderMenuItems(node); track item.label) {
-            <button mat-menu-item 
-            [disabled]="item.disabled"
-            (click)="!item.disabled && item.action(); menuTrigger.closeMenu(); $event.stopPropagation();">
-              <i class="fas" [ngClass]="item.icon"></i>
-              <span>{{ item.label }}</span>
-            </button>
-            }
-          </ng-container>
-          <ng-container *ngIf="node.type === 'file'">
-            @for(item of getFileMenuItems(node); track item.label) {
-            <button mat-menu-item (click)="item.action(); menuTrigger.closeMenu(); $event.stopPropagation();">
-              <i class="fas" [ngClass]="item.icon"></i>
-              <span>{{ item.label }}</span>
-            </button>
-            }
-          </ng-container>
+          <button mat-menu-item (click)="showProperties(node)">
+            <i class="fas fa-info-circle"></i>
+            <span>Properties</span>
+          </button>
         </mat-menu>
+        <!-- Context Menu
+        <mat-menu #contextMenu="matMenu">
+          @if(node.type === 'folder') {
+            <button mat-menu-item (click)="openCreateNewFolderDialogue(node)">
+              <i class="fas fa-folder-plus"></i>
+              <span>New Folder</span>
+            </button>
+            <button mat-menu-item (click)="openUploadDialog(node)">
+              <i class="fas fa-file-upload"></i>
+              <span>Upload File</span>
+            </button>
+            <button mat-menu-item (click)="startEditing(node)" [disabled]="node.originalData?.is_system">
+              <i class="fas fa-edit"></i>
+              <span>Rename</span>
+            </button>
+            <button mat-menu-item (click)="moveItem(node)" [disabled]="node.originalData?.is_system">
+              <i class="fas fa-folder-open"></i>
+              <span>Move</span>
+            </button>
+            <button mat-menu-item (click)="deleteItem(node)" [disabled]="node.originalData?.is_system">
+              <i class="fas fa-trash-alt"></i>
+              <span>Delete</span>
+            </button>
+            <button mat-menu-item (click)="showProperties(node)">
+              <i class="fas fa-info-circle"></i>
+              <span>Properties</span>
+            </button>
+          }
+          
+          @if(node.type === 'file') {
+            <button mat-menu-item (click)="downloadFile(node)">
+              <i class="fas fa-download"></i>
+              <span>Download</span>
+            </button>
+            <button mat-menu-item (click)="startEditing(node)">
+              <i class="fas fa-edit"></i>
+              <span>Rename</span>
+            </button>
+            <button mat-menu-item (click)="moveItem(node)">
+              <i class="fas fa-folder-open"></i>
+              <span>Move</span>
+            </button>
+            <button mat-menu-item (click)="deleteItem(node)">
+              <i class="fas fa-trash-alt"></i>
+              <span>Delete</span>
+            </button>
+            <button mat-menu-item (click)="shareItem(node)">
+              <i class="fas fa-share-alt"></i>
+              <span>Share</span>
+            </button>
+            <button mat-menu-item (click)="showFileProperties(node)">
+              <i class="fas fa-info-circle"></i>
+              <span>Properties</span>
+            </button>
+          }
+        </mat-menu>  -->
       </div>
 
       <!-- Children (if folder and expanded) -->
