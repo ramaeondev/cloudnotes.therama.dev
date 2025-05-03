@@ -68,8 +68,8 @@ jobs:
             aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
 
             # Pull the Docker image
-            docker pull public.ecr.aws/r5p8n8t0/cloudnotes/frontend:86f5beb7f2b0da8f892f5ead2328b2269f9feeca
-
+            docker pull public.ecr.aws/r5p8n8t0/cloudnotes/frontend:latest
+            
             # Stop and remove any existing container
             docker stop cloudnotes-frontend || true
             docker rm cloudnotes-frontend || true
@@ -79,7 +79,7 @@ jobs:
               --name cloudnotes-frontend \
               -p 80:80 -p 443:443 \
               -v /etc/letsencrypt:/etc/letsencrypt:ro \
-              public.ecr.aws/r5p8n8t0/cloudnotes/frontend:86f5beb7f2b0da8f892f5ead2328b2269f9feeca
+              public.ecr.aws/r5p8n8t0/cloudnotes/frontend:latest
 
       - name: Log and Update Deployment
         if: always()

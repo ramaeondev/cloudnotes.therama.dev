@@ -25,13 +25,8 @@
           (click)="$event.stopPropagation()">
           <i class="fas fa-ellipsis-v"></i>
         </button>
-        <mat-menu #contextMenu="matMenu">
-          <button mat-menu-item (click)="showProperties(node)">
-            <i class="fas fa-info-circle"></i>
-            <span>Properties</span>
-          </button>
-        </mat-menu>
-        <!-- Context Menu
+
+        <!-- Context Menu -->
         <mat-menu #contextMenu="matMenu">
           @if(node.type === 'folder') {
             <button mat-menu-item (click)="openCreateNewFolderDialogue(node)">
@@ -86,7 +81,7 @@
               <span>Properties</span>
             </button>
           }
-        </mat-menu>  -->
+        </mat-menu>
       </div>
 
       <!-- Children (if folder and expanded) -->
