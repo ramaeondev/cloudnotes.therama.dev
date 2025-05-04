@@ -113,11 +113,22 @@
     min-height: 100vh;
     margin-left: -308px !important;  // Counteract the automatic margin
     width: calc(100vw - 308px); // Subtract sidenav width
+
     .dashboard-content {
       flex: 1;
-      padding: 24px;     
+     
       min-height: 100vh;
+      background-color: crimson;
+       /* Center the filepreview content */
+      display: flex;
+      justify-content: center;
+      align-items: flex-start; // Or `center` if you want vertical centering too
+
+      /* Optional: limit width of preview content */
+      > * {
+        max-width: 100%;
       }
+    }
   }
 }
 

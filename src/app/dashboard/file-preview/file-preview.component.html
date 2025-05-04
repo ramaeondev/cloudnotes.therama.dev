@@ -1,26 +1,8 @@
 <!-- file-preview.component.html -->
 <div class="preview-container">
-  <!-- Backdrop that closes when clicked -->
-  <div *ngIf="previewService.hasActivePreview$ | async" 
-       class="preview-backdrop" 
-       (click)="closeAllPreviews()">
-  </div>
-
   <!-- Unified Preview Modal -->
-  <div *ngIf="activePreview$ | async as preview" class="preview-modal">
-    <div class="modal-header">
-      <h3>{{ preview.fileName }}</h3>
-      <div class="header-actions">
-        <button *ngIf="preview.downloadUrl" mat-icon-button 
-                (click)="downloadFile(preview.downloadUrl, preview.fileName)">
-          <mat-icon>download</mat-icon>
-        </button>
-        <button mat-icon-button (click)="closeAllPreviews()" aria-label="Close preview">
-          <mat-icon>close</mat-icon>
-        </button>
-      </div>
-    </div>
-    
+  <div *ngIf="activePreview$ | async as preview" class="preview-header">
+     
     <div class="preview-content">
       <!-- Image Preview -->
       <img *ngIf="preview.type === 'image'" 
@@ -29,19 +11,13 @@
            class="preview-image"
            (load)="onContentLoaded()">
            
-      <!-- PDF Preview -->
-      <iframe *ngIf="preview.type === 'pdf'"
-              [src]="preview.url"
-              title="PDF document preview"
-              class="preview-iframe"
-              (load)="onContentLoaded()"></iframe>
-              
-      <!-- Office Preview -->
-      <iframe *ngIf="preview.type === 'office'"
-              [src]="preview.url"
-              title="Office document preview"
-              class="preview-iframe"
-              (load)="onContentLoaded()"></iframe>
+        <!-- PDF and Office Documents (combined iframe handling) -->
+        <iframe *ngIf="preview.type === 'pdf' || preview.type === 'office'"
+        [src]="preview.url"
+        (loadeddata)="onContentLoaded()"
+        [title]="preview.fileName + ' preview'"
+        class="preview-iframe"
+        frameborder="0"></iframe>
               
       <!-- Video Preview -->
       <video *ngIf="preview.type === 'video'"
@@ -60,9 +36,9 @@
       </audio>
       
       <!-- Loading Indicator -->
-      <div *ngIf="isLoading" class="loading-spinner">
+      <!-- <div *ngIf="isLoading" class="loading-spinner">
         <mat-spinner diameter="50"></mat-spinner>
-      </div>
+      </div> -->
     </div>
   </div>
 </div>

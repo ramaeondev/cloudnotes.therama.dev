@@ -10,7 +10,7 @@ import { combineLatest, map, Observable } from 'rxjs';
 
 interface PreviewData {
   type: 'image' | 'pdf' | 'office' | 'video' | 'audio';
-  url: string;
+  url: SafeResourceUrl;
   downloadUrl?: string;
   fileName: string;
   fileType?: string;
