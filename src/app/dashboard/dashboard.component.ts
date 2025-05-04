@@ -1,9 +1,10 @@
-import { Component, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, OnInit, signal, ViewChild, WritableSignal } from '@angular/core';
 import { SupabaseService } from '../services/supabase.service';
 import { NewsletterService } from '../services/newsletter.service';
 import { User } from '@supabase/supabase-js';
 import { FolderService } from '../services/folder.service';
 import { SharedService } from '../services/shared.service';
+import { MatSidenav } from '@angular/material/sidenav';
 
 @Component({
   selector: 'app-dashboard',
@@ -19,6 +20,7 @@ export class DashboardComponent implements OnInit {
   userName: WritableSignal<string> = signal('');
   sidenavWidth: WritableSignal<number> = signal<number>(20);
   private resizing: WritableSignal<boolean> = signal<boolean>(false);
+  @ViewChild('sidenav') sidenav!: MatSidenav;
 
 
   constructor(private readonly supabase: SupabaseService, private readonly newsletter: NewsletterService,
@@ -111,4 +113,8 @@ export class DashboardComponent implements OnInit {
     document.removeEventListener('mousemove', this.resizeHandler);
     document.removeEventListener('mouseup', this.stopResize);
   };
+
+  toggleSidenav() {
+    this.sidenav.toggle();
+  }
 }

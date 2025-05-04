@@ -1,67 +1,143 @@
+/* file-preview.component.scss */
+
 .preview-container {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  width: 100vw;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  position: relative;
 }
 
 .preview-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  background: #f5f5f5;
-  border-bottom: 1px solid #e0e0e0;
-  flex-shrink: 0;
-  
-  .file-title {
-    margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: calc(100vw - 100px);
-  }
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .preview-content {
   flex: 1;
   display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
   position: relative;
-  background: #fafafa;
+  background-color: #f8f8f8;
+  min-height: 300px;
+  height: calc(100vh - 200px); /* Adjusts based on viewport height minus margins */
+}
+
+/* Image Preview */
+.preview-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
   
-  .preview-iframe {
-    flex: 1;
-    width: 100%;
-    height: 100%;
-    border: none;
-    background: white;
+  &:hover {
+    transform: scale(1.01);
   }
+}
 
-  .preview-image {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    margin: auto;
+/* PDF and Office Documents */
+.preview-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background-color: white;
+}
+
+/* Video Preview */
+.preview-video {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+
+/* Audio Preview */
+.preview-audio {
+  width: 85%;
+  max-width: 600px;
+  margin: 20px auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 15px;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  padding: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .preview-content {
+    height: calc(100vh - 180px);
   }
-
-  .preview-video {
-    width: 100%;
-    height: 100%;
-    max-height: 100vh;
-    background: black;
-  }
-
+  
   .preview-audio {
-    width: 100%;
-    max-width: 600px;
-    margin: auto;
+    width: 95%;
   }
+}
 
-  .loading-spinner {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
+/* Animation for content loading */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.preview-image,
+.preview-iframe,
+.preview-video,
+.preview-audio {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Special styling for different file types */
+.preview-container[data-file-type="pdf"] .preview-content {
+  background-color: #f0f0f0;
+}
+
+.preview-container[data-file-type="image"] .preview-content {
+  background-color: #fafafa;
+  padding: 20px;
+}
+
+.preview-container[data-file-type="video"] .preview-content,
+.preview-container[data-file-type="audio"] .preview-content {
+  background-color: #f5f5f5;
+}
+
+/* Optional: Add a subtle border to images */
+.preview-image {
+  border: 1px solid #e0e0e0;
+}
+
+/* Ensure the component fills the content container appropriately */
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+  box-sizing: border-box;
 }
