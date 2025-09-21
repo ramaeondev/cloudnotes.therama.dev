@@ -1,32 +1,18 @@
-# Stage 1: Build Angular app
+# Stage 1: Build Angular
 FROM node:20-alpine AS builder
-
 WORKDIR /app
-
-# Install dependencies
 COPY package*.json ./
 RUN npm ci
-
-# Copy source code
 COPY . .
-
-# Build Angular app for production
 RUN npm run build -- --configuration production
 
-# Stage 2: Serve with NGINX
+# Stage 2: NGINX
 FROM nginx:alpine
+COPY --from=builder /app/dist/cloudnotes-angular.therama.dev /usr/share/nginx/html
+COPY conf.d/default.conf /etc/nginx/conf.d/default.conf
 
-# Remove default nginx website
-RUN rm -rf /usr/share/nginx/html/*
-
-# Copy built Angular app from builder
-COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Copy custom nginx config
-COPY nginx.conf /etc/nginx/nginx.conf
-
-# Heroku listens on $PORT
-ENV PORT 8080
+# Use dynamic port for Heroku
+ENV PORT=8080
 EXPOSE 8080
 
 CMD ["nginx", "-g", "daemon off;"]
