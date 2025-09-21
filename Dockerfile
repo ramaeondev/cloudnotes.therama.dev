@@ -9,7 +9,8 @@ RUN npm run build -- --configuration production
 # Stage 2: NGINX
 FROM nginx:alpine
 COPY --from=builder /app/dist/cloudnotes-angular.therama.dev /usr/share/nginx/html
-COPY conf.d/default.conf /etc/nginx/conf.d/default.conf
+# Use NGINX template to render ${PORT} at runtime (Heroku)
+COPY conf.d/default.conf.template /etc/nginx/templates/default.conf.template
 
 # Use dynamic port for Heroku
 ENV PORT=8080
