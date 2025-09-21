@@ -1,0 +1,60 @@
+name: Build and Deploy Angular App to Heroku
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      HEROKU_APP_NAME: cloudnotes-frontend   # Change to your Heroku app name
+
+    steps:
+      # Step 1: Capture start time
+      - name: Capture start time
+        run: echo "START_TIME=$(date +%s)" >> $GITHUB_ENV
+
+      # Step 2: Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 3: Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      # Step 4: Install dependencies and build Angular app
+      - name: Build Angular app
+        run: |
+          npm ci
+          npm run build -- --configuration production
+
+      # Step 5: Login to Heroku Container Registry
+      - name: Login to Heroku Container Registry
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: echo $HEROKU_API_KEY | docker login --username=_ --password-stdin registry.heroku.com
+
+      # Step 6: Build Docker image
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: registry.heroku.com/${{ env.HEROKU_APP_NAME }}/web
+
+      # Step 7: Release Docker image on Heroku
+      - name: Release app on Heroku
+        run: heroku container:release web -a ${{ env.HEROKU_APP_NAME }}
+
+      # Step 8: Log deployment duration (optional)
+      - name: Log and Update Deployment
+        if: always()
+        uses: ramaeondev/therama.dev/.github/actions/log-and-update-deployment@master
+        with:
+          start_time: ${{ env.START_TIME }}
+          s3_bucket: ${{ secrets.S3_UPLOAD_BUCKET }}
