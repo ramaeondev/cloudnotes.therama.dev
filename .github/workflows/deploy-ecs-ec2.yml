@@ -77,8 +77,7 @@ jobs:
             # Run the new container
             docker run -d \
               --name cloudnotes-frontend \
-              -p 80:80 -p 443:443 \
-              -v /etc/letsencrypt:/etc/letsencrypt:ro \
+              -p 80:80 \
               public.ecr.aws/r5p8n8t0/cloudnotes/frontend:latest
 
       - name: Log and Update Deployment
