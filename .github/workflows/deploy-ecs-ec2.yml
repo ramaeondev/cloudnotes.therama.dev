@@ -74,10 +74,11 @@ jobs:
             docker stop cloudnotes-frontend || true
             docker rm cloudnotes-frontend || true
 
-            # Run the new container
             docker run -d \
               --name cloudnotes-frontend \
-              -p 80:80 \
+              -p 80:80 -p 443:443 \
+              -v /etc/ssl/certs:/etc/ssl/certs:ro \
+              -v /etc/ssl/private:/etc/ssl/private:ro \
               public.ecr.aws/r5p8n8t0/cloudnotes/frontend:latest
 
       - name: Log and Update Deployment
