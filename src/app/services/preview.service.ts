@@ -1,89 +1,124 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { ImagePreview, PdfPreview, OfficePreview, VideoPreview, AudioPreview } from '../models/preview.interface';
-
+import {
+  FilePreviewData,
+  ImagePreviewData,
+  PdfPreviewData,
+  OfficePreviewData,
+  VideoPreviewData,
+  AudioPreviewData,
+  CodePreviewData,
+} from '../models/preview.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PreviewService {
+  // Main preview state subject
+  private previewSubject = new BehaviorSubject<FilePreviewData | null>(null);
+  public preview$ = this.previewSubject.asObservable();
+
+  // Active preview flag
+  private hasActivePreviewSubject = new BehaviorSubject<boolean>(false);
+  public hasActivePreview$ = this.hasActivePreviewSubject.asObservable();
+
   // Image Preview
-  private imagePreviewSubject = new BehaviorSubject<ImagePreview>({
-    imageUrl: '',
-    fileName: '',
-    showPreview: false
-  });
-  imagePreview$ = this.imagePreviewSubject.asObservable();
+  sendImagePreview(data: Omit<ImagePreviewData, 'type'>): void {
+    this.previewSubject.next({
+      type: 'image',
+      imageUrl: data.imageUrl, // Already sanitized
+      fileName: data.fileName,
+      showPreview: true,
+      fileType: data.fileType
+    });
+    this.updateActivePreview(true);
+  }
 
   // PDF Preview
-  private pdfPreviewSubject = new BehaviorSubject<PdfPreview>({
-    pdfUrl: null,
-    fileName: '',
-    showPreview: false
-  });
-  pdfPreview$ = this.pdfPreviewSubject.asObservable();
+  sendPdfPreview(data: Omit<PdfPreviewData, 'type'>): void {
+    this.previewSubject.next({
+      type: 'pdf',
+      pdfUrl: data.pdfUrl, // Already sanitized
+      fileName: data.fileName,
+      showPreview: true,
+      fileType: 'application/pdf'
+    });
+    this.updateActivePreview(true);
+  }
 
   // Office Preview
-  private officePreviewSubject = new BehaviorSubject<OfficePreview>({
-    officeUrl: null,
-    fileName: '',
-    showPreview: false
-  });
-  officePreview$ = this.officePreviewSubject.asObservable();
+  sendOfficePreview(data: Omit<OfficePreviewData, 'type'>): void {
+    this.previewSubject.next({
+      type: 'office',
+      officeUrl: data.officeUrl, // Already sanitized
+      fileName: data.fileName,
+      showPreview: true,
+      fileType: data.fileType
+    });
+    this.updateActivePreview(true);
+  }
 
   // Video Preview
-  private videoPreviewSubject = new BehaviorSubject<VideoPreview>({
-    videoUrl: null,
-    fileName: '',
-    showPreview: false
-  });
-  videoPreview$ = this.videoPreviewSubject.asObservable();
+  sendVideoPreview(data: Omit<VideoPreviewData, 'type'>): void {
+    this.previewSubject.next({
+      type: 'video',
+      videoUrl: data.videoUrl, // Already sanitized
+      fileName: data.fileName,
+      showPreview: true,
+      fileType: data.fileType,
+      posterUrl: data.posterUrl, // Already sanitized
+      showPoster: data.showPoster ?? true,
+      showControls: data.showControls ?? true,
+      autoplay: data.autoplay ?? false,
+      loop: data.loop ?? false,
+      muted: data.muted ?? false,
+      preload: data.preload || 'metadata'
+    });
+    this.updateActivePreview(true);
+  }
 
   // Audio Preview
-  private audioPreviewSubject = new BehaviorSubject<AudioPreview>({
-    audioUrl: '',
-    fileName: '',
-    showPreview: false
-  });
-  audioPreview$ = this.audioPreviewSubject.asObservable();
-
-  // Methods to update preview states
-  sendImagePreview(data: ImagePreview) {
-    this.imagePreviewSubject.next(data);
+  sendAudioPreview(data: Omit<AudioPreviewData, 'type'>): void {
+    this.previewSubject.next({
+      type: 'audio',
+      audioUrl: data.audioUrl, // Already sanitized
+      fileName: data.fileName,
+      showPreview: true,
+      fileType: data.fileType,
+      coverArtUrl: data.coverArtUrl, // Already sanitized
+      showCoverArt: data.showCoverArt ?? true,
+      showControls: data.showControls ?? true,
+      autoplay: data.autoplay ?? false,
+      loop: data.loop ?? false,
+      muted: data.muted ?? false,
+      preload: data.preload || 'metadata'
+    });
+    this.updateActivePreview(true);
   }
 
-  sendPdfPreview(data: PdfPreview) {
-    this.pdfPreviewSubject.next(data);
+  // Code Preview
+  sendCodePreview(data: Omit<CodePreviewData, 'type'>): void {
+    this.previewSubject.next({
+      type: 'code',
+      fileUrl: data.fileUrl, // Already sanitized
+      fileName: data.fileName,
+      showPreview: true,
+      fileType: data.fileType,
+      language: data.language,
+      lineNumbers: data.lineNumbers ?? true,
+      maxLines: data.maxLines || 1000,
+      content: data.content
+    });
+    this.updateActivePreview(true);
   }
 
-  sendOfficePreview(data: OfficePreview) {
-    this.officePreviewSubject.next(data);
+  // Close all previews
+  closeAllPreviews(): void {
+    this.previewSubject.next(null);
+    this.updateActivePreview(false);
   }
 
-  sendVideoPreview(data: VideoPreview) {
-    // Add file type if needed
-    const extension = data.fileName.split('.').pop()?.toLowerCase();
-    data.fileType = `video/${extension}`;
-    this.videoPreviewSubject.next(data);
+  private updateActivePreview(state: boolean): void {
+    this.hasActivePreviewSubject.next(state);
   }
-
-  sendAudioPreview(data: AudioPreview) {
-    // Add file type if needed
-    const extension = data.fileName.split('.').pop()?.toLowerCase();
-    data.fileType = `audio/${extension}`;
-    this.audioPreviewSubject.next(data);
-  }
-
-  // Method to close all previews
-  closeAllPreviews() {
-    this.imagePreviewSubject.next({ imageUrl: '', fileName: '', showPreview: false });
-    this.pdfPreviewSubject.next({ pdfUrl: null, fileName: '', showPreview: false });
-    this.officePreviewSubject.next({ officeUrl: null, fileName: '', showPreview: false });
-    this.videoPreviewSubject.next({ videoUrl: null, fileName: '', showPreview: false });
-    this.audioPreviewSubject.next({ audioUrl: '', fileName: '', showPreview: false });
-    this._hasActivePreview.next(false);
-  }
-
-  private _hasActivePreview = new BehaviorSubject<boolean>(false);
-  hasActivePreview$ = this._hasActivePreview.asObservable();
 }

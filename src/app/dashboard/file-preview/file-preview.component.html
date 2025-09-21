@@ -2,6 +2,7 @@
 <div class="preview-container">
   <!-- Unified Preview Modal -->
   <div *ngIf="activePreview$ | async as preview" class="preview-header">
+    {{ preview | json }}
      
     <div class="preview-content">
       <!-- Image Preview -->
@@ -10,7 +11,7 @@
            [alt]="preview.fileName"
            class="preview-image"
            (load)="onContentLoaded()">
-           
+
         <!-- PDF and Office Documents (combined iframe handling) -->
         <iframe *ngIf="preview.type === 'pdf' || preview.type === 'office'"
         [src]="preview.url"
@@ -19,22 +20,54 @@
         class="preview-iframe"
         frameborder="0"></iframe>
               
-      <!-- Video Preview -->
-      <video *ngIf="preview.type === 'video'"
-             controls autoplay class="preview-video"
-             (loadeddata)="onContentLoaded()">
-        <source [src]="preview.url" 
-                [type]="preview.fileType">
-      </video>
+       <!-- Video Preview -->
+    <video *ngIf="preview.type === 'video'"
+           [controls]="preview.showControls ?? true"
+           [autoplay]="preview.autoplay ?? false"
+           [poster]="preview.posterUrl"
+           class="preview-video"
+           (loadeddata)="onContentLoaded()">
+      <source [src]="preview.url" 
+              [type]="preview.fileType">
+    </video>
+    
+    <!-- Audio Preview -->
+    <audio *ngIf="preview.type === 'audio'"
+           [controls]="preview.showControls ?? true"
+           [autoplay]="preview.autoplay ?? false"
+           class="preview-audio"
+           (loadeddata)="onContentLoaded()">
+      <source [src]="preview.url" 
+              [type]="preview.fileType">
+    </audio>
+    
+    <!-- Text/Code Preview -->
+    <div *ngIf="preview.type === 'code'" class="code-preview-container">
+      <div class="code-toolbar">
+        <button mat-icon-button (click)="copyCodeContent(preview.content || '')" 
+                matTooltip="Copy to clipboard">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
       
-      <!-- Audio Preview -->
-      <audio *ngIf="preview.type === 'audio'"
-             controls autoplay class="preview-audio"
-             (loadeddata)="onContentLoaded()">
-        <source [src]="preview.url" 
-                [type]="preview.fileType">
-      </audio>
-      
+      <ng-container *ngIf="!isLoading; else loading">
+      <pre *ngIf="preview.content" class="code-content">
+        <code [class]="'language-' + (preview.language || 'text')">
+          {{ preview.content }}
+        </code>
+      </pre>
+
+      <iframe *ngIf="!preview.content"
+            [src]="preview.url"
+            class="code-iframe"
+            (load)="onContentLoaded()"
+            title="Code file preview"></iframe>
+      </ng-container>
+      <ng-template #loading>
+        <div class="loading-spinner">
+          <mat-spinner diameter="50"></mat-spinner>
+        </div>
+      </ng-template>
       <!-- Loading Indicator -->
       <!-- <div *ngIf="isLoading" class="loading-spinner">
         <mat-spinner diameter="50"></mat-spinner>

@@ -141,3 +141,73 @@
   padding: 10px;
   box-sizing: border-box;
 }
+
+/* Add to your component's styles */
+.code-preview-container {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background: #f8f8f8;
+  position: relative;
+  padding: 1rem;
+  
+  .code-toolbar {
+    position: sticky;
+    top: 0;
+    background: #f8f8f8;
+    padding: 0.5rem;
+    z-index: 1;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  pre {
+    margin: 0;
+    padding: 1rem;
+    background: white;
+    border-radius: 4px;
+    overflow-x: auto;
+    
+    code {
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+  }
+  
+  &.line-numbers {
+    pre {
+      counter-reset: line;
+    }
+    code {
+      counter-increment: line;
+      &:before {
+        content: counter(line);
+        display: inline-block;
+        width: 2em;
+        padding-right: 1em;
+        margin-right: 1em;
+        color: #999;
+        text-align: right;
+        user-select: none;
+      }
+    }
+  }
+}
+
+.no-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #757575;
+  
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 1rem;
+  }
+}

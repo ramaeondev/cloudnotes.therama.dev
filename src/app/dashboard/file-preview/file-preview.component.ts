@@ -1,19 +1,29 @@
-// file-preview.component.ts
 import { Component } from '@angular/core';
 import { PreviewService } from '../../services/preview.service';
 import { CommonModule } from '@angular/common';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { SafeResourceUrl } from '@angular/platform-browser';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { combineLatest, map, Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
+import { 
+  FilePreviewData,
+} from '../../models/preview.interface';
+import { ToastrService } from 'ngx-toastr';
 
-interface PreviewData {
-  type: 'image' | 'pdf' | 'office' | 'video' | 'audio';
+interface ComponentPreviewData {
+  type: 'image' | 'pdf' | 'office' | 'video' | 'audio' | 'code';
   url: SafeResourceUrl;
-  downloadUrl?: string;
+  downloadUrl?: SafeResourceUrl | string;
   fileName: string;
   fileType?: string;
+  // Additional optional properties for specific types
+  posterUrl?: SafeResourceUrl | null;
+  showControls?: boolean;
+  autoplay?: boolean;
+  language?: string;
+  lineNumbers?: boolean;
+  content?: string;
 }
 
 @Component({
@@ -30,89 +40,118 @@ interface PreviewData {
 })
 export class FilePreviewComponent {
   isLoading = true;
-  activePreview$: Observable<PreviewData | null>;
+  activePreview$: Observable<ComponentPreviewData | null>;
 
   constructor(
-    public previewService: PreviewService, 
-    private sanitizer: DomSanitizer
+    public previewService: PreviewService, private readonly toastr: ToastrService
   ) {
-    this.activePreview$ = combineLatest([
-      this.previewService.imagePreview$,
-      this.previewService.pdfPreview$,
-      this.previewService.officePreview$,
-      this.previewService.videoPreview$,
-      this.previewService.audioPreview$
-    ]).pipe(
-      map(([image, pdf, office, video, audio]) => {
-        if (image.showPreview) {
-          return {
-            type: 'image',
-            url: image.imageUrl,
-            downloadUrl: image.imageUrl,
-            fileName: image.fileName,
-            fileType: 'image/' + image.fileName.split('.').pop()?.toLowerCase()
-          };
+    this.activePreview$ = this.previewService.preview$.pipe(
+      map(preview => {
+        if (!preview) return null;
+
+        const commonData = {
+          fileName: preview.fileName,
+          fileType: this.getFileType(preview),
+          downloadUrl: this.getDownloadUrl(preview),
+          showControls: true,
+          autoplay: false
+        };
+
+        switch (preview.type) {
+          case 'image':
+            return {
+              ...commonData,
+              type: 'image',
+              url: preview.imageUrl,
+            };
+
+          case 'pdf':
+            return {
+              ...commonData,
+              type: 'pdf',
+              url: preview.pdfUrl,
+            };
+
+          case 'office':
+            return {
+              ...commonData,
+              type: 'office',
+              url: preview.officeUrl,
+            };
+
+          case 'video':
+            return {
+              ...commonData,
+              type: 'video',
+              url: preview.videoUrl,
+              posterUrl: preview.posterUrl,
+              showControls: preview.showControls ?? true,
+              autoplay: preview.autoplay ?? false
+            };
+
+          case 'audio':
+            return {
+              ...commonData,
+              type: 'audio',
+              url: preview.audioUrl,
+              showControls: preview.showControls ?? true,
+              autoplay: preview.autoplay ?? false
+            };
+
+          case 'code':
+            return {
+              ...commonData,
+              type: 'code',
+              url: preview.fileUrl,
+              language: preview.language,
+              lineNumbers: preview.lineNumbers ?? true,
+              content: preview.content
+            };
+
+          default:
+            return null;
         }
-        if (pdf.showPreview) {
-          return {
-            type: 'pdf',
-            url: pdf.pdfUrl,
-            downloadUrl: pdf.pdfUrl,
-            fileName: pdf.fileName,
-            fileType: 'application/pdf'
-          };
-        }
-        if (office.showPreview) {
-          return {
-            type: 'office',
-            url: office.officeUrl,
-            downloadUrl: office.officeUrl,
-            fileName: office.fileName,
-            fileType: 'application/office'
-          };
-        }
-        if (video.showPreview) {
-          return {
-            type: 'video',
-            url: video.videoUrl,
-            downloadUrl: video.videoUrl,
-            fileName: video.fileName,
-            fileType: video.fileType
-          };
-        }
-        if (audio.showPreview) {
-          return {
-            type: 'audio',
-            url: audio.audioUrl,
-            downloadUrl: audio.audioUrl,
-            fileName: audio.fileName,
-            fileType: audio.fileType
-          };
-        }
-        return null;
       })
     );
   }
 
+  private getFileType(preview: FilePreviewData): string | undefined {
+    if ('fileType' in preview) return preview.fileType;
+    if ('imageUrl' in preview) return 'image/' + preview.fileName.split('.').pop()?.toLowerCase();
+    if ('pdfUrl' in preview) return 'application/pdf';
+    return undefined;
+  }
 
+  private getDownloadUrl(preview: FilePreviewData): SafeResourceUrl | string {
+    switch (preview.type) {
+      case 'image': return preview.imageUrl;
+      case 'pdf': return preview.pdfUrl;
+      case 'office': return preview.officeUrl;
+      case 'video': return preview.videoUrl;
+      case 'audio': return preview.audioUrl;
+      case 'code': return preview.fileUrl;
+      default: return '';
+    }
+  }
 
   onContentLoaded(): void {
     this.isLoading = false;
-  }
-
-  downloadFile(url: string, filename: string): void {
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
   }
 
   closeAllPreviews(): void {
     this.isLoading = true;
     this.previewService.closeAllPreviews();
   }
+
+  copyCodeContent(content: string): void {
+    navigator.clipboard.writeText(content).then(() => {
+      // Show success notification
+      this.toastr.success('Code copied to clipboard');
+    }).catch(err => {
+      console.error('Failed to copy code:', err);
+      this.toastr.error('Failed to copy code');
+    });
+  }
+
+  
 }

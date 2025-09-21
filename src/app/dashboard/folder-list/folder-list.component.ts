@@ -12,9 +12,10 @@ import { NgxSpinnerService } from 'ngx-spinner';
 import { CommonDialogueComponent } from '../../shared/common-dialogue/common-dialogue.component';
 import { FileService } from '../../services/file.service';
 import { Router } from '@angular/router';
-import { DomSanitizer } from '@angular/platform-browser';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { PreviewService } from '../../services/preview.service';
 import { SharedService } from '../../services/shared.service';
+import { AudioPreviewData, CodeLanguage, CodePreviewData, ImagePreviewData, OfficePreviewData, PdfPreviewData, VideoPreviewData } from '../../models/preview.interface';
 @Component({
   selector: 'app-folder-list',
   standalone: false,
@@ -460,6 +461,9 @@ export class FolderListComponent implements OnInit {
         else if (contentType.startsWith('audio/')) {
           this.handleAudioPreview(url, displayName, contentType);
         }
+        else if (this.isTextFile(contentType, s3Key)) {
+          this.handleCodePreview(url, displayName);
+        }
         else {
           this.handleUnknownFileType(url);
         }
@@ -473,55 +477,176 @@ export class FolderListComponent implements OnInit {
   
   // Helper methods for different file types
   private handleImagePreview(url: string, filename: string): void {
-    this.previewService.sendImagePreview({
-      imageUrl: url,
+    // Create properly typed preview data
+    const imagePreviewData: ImagePreviewData = {
+      type: 'image', // Add the discriminant type
+      imageUrl: this.sanitizer.bypassSecurityTrustResourceUrl(url),
       fileName: filename,
-      showPreview: true
-    });
+      showPreview: true,
+      fileType: this.getImageMimeType(filename) // Add proper image type
+    };
+  
+    // Send to preview service
+    this.previewService.sendImagePreview(imagePreviewData);
     this.navigateToPreview();
   }
   
+  
   private handlePdfPreview(url: string, filename: string): void {
-    // Solution 1: Open in new tab (most reliable)
-    // window.open(url, '_blank');
-    
-    // OR Solution 2: Use embedded viewer
-    this.previewService.sendPdfPreview({
+    // Create properly typed PDF preview data
+    const pdfPreviewData: PdfPreviewData = {
+      type: 'pdf', // Discriminant for union type
       pdfUrl: this.sanitizer.bypassSecurityTrustResourceUrl(url),
       fileName: filename,
-      showPreview: true
-    });
+      showPreview: true,
+      fileType: 'application/pdf' // Explicit MIME type
+    };
+  
+    // Send to preview service
+    this.previewService.sendPdfPreview(pdfPreviewData);
     this.navigateToPreview();
   }
   
   private handleOfficePreview(url: string, filename: string): void {
-    const officeUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
-    this.previewService.sendOfficePreview({
+    // Create the Office Online viewer URL
+    const officeViewerBase = 'https://view.officeapps.live.com/op/embed.aspx';
+    const officeUrl = `${officeViewerBase}?src=${encodeURIComponent(url)}`;
+  
+    // Create typed preview data
+    const officePreviewData: OfficePreviewData = {
+      type: 'office', // Discriminant property
       officeUrl: this.sanitizer.bypassSecurityTrustResourceUrl(officeUrl),
       fileName: filename,
-      showPreview: true
-    });
+      showPreview: true,
+      fileType: this.getOfficeFileType(filename) // Added MIME type detection
+    };
+  
+    // Send to preview service
+    this.previewService.sendOfficePreview(officePreviewData);
     this.navigateToPreview();
+  }
+  
+  /**
+   * Detects Office file type from filename
+   */
+  private getOfficeFileType(filename: string): string {
+    const extension = filename.split('.').pop()?.toLowerCase();
+    
+    const officeTypes: Record<string, string> = {
+      doc: 'application/msword',
+      docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      xls: 'application/vnd.ms-excel',
+      xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      ppt: 'application/vnd.ms-powerpoint',
+      pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+    };
+  
+    return officeTypes[extension || ''] || 'application/octet-stream';
   }
   
   private handleVideoPreview(url: string, filename: string, contentType: string): void {
-    this.previewService.sendVideoPreview({
+    // Validate and normalize the content type
+    const normalizedType = this.normalizeVideoContentType(contentType, filename);
+  
+    // Create typed video preview data
+    const videoPreviewData: VideoPreviewData = {
+      type: 'video', // Discriminant property
       videoUrl: this.sanitizer.bypassSecurityTrustResourceUrl(url),
       fileName: filename,
       showPreview: true,
-      fileType: contentType
-    });
+      fileType: normalizedType,
+      posterUrl: this.getVideoPosterUrl(filename) // Optional thumbnail preview
+    };
+  
+    // Send to preview service
+    this.previewService.sendVideoPreview(videoPreviewData);
     this.navigateToPreview();
   }
   
+  /**
+   * Normalizes video content type and validates against filename
+   */
+  private normalizeVideoContentType(contentType: string, filename: string): `video/${string}` {
+    const extension = filename.split('.').pop()?.toLowerCase() || '';
+    
+    // Map of common video extensions to MIME types
+    const videoTypes: Record<string, `video/${string}`> = {
+      mp4: 'video/mp4',
+      webm: 'video/webm',
+      ogv: 'video/ogg',
+      mov: 'video/quicktime',
+      mkv: 'video/x-matroska',
+      avi: 'video/x-msvideo'
+    };
+  
+    // Use the content type if valid, otherwise infer from extension
+    return contentType.startsWith('video/') 
+      ? contentType as `video/${string}`
+      : videoTypes[extension] || 'video/mp4'; // Default to mp4
+  }
+  
+  /**
+   * Generates a thumbnail URL for the video (optional)
+   */ 
+  private getVideoPosterUrl(filename: string): SafeResourceUrl | null {
+    // Implement your thumbnail generation logic here
+    // This could be:
+    // 1. A pre-generated thumbnail from your backend
+    // 2. A frame extracted client-side (requires additional logic)
+    // 3. A placeholder image
+    return null;
+  }
+  
   private handleAudioPreview(url: string, filename: string, contentType: string): void {
-    this.previewService.sendAudioPreview({
-      audioUrl: url,
+    // Validate and normalize the content type
+    const normalizedType = this.normalizeAudioContentType(contentType, filename);
+  
+    // Create typed audio preview data
+    const audioPreviewData: AudioPreviewData = {
+      type: 'audio', // Discriminant property
+      audioUrl: this.sanitizer.bypassSecurityTrustResourceUrl(url),
       fileName: filename,
       showPreview: true,
-      fileType: contentType
-    });
+      fileType: normalizedType,
+      coverArtUrl: this.getAudioCoverArtUrl(filename) // Optional cover art
+    };
+  
+    // Send to preview service
+    this.previewService.sendAudioPreview(audioPreviewData);
     this.navigateToPreview();
+  }
+  
+  /**
+   * Normalizes audio content type and validates against filename
+   */
+  private normalizeAudioContentType(contentType: string, filename: string): `audio/${string}` {
+    const extension = filename.split('.').pop()?.toLowerCase() || '';
+    
+    // Map of common audio extensions to MIME types
+    const audioTypes: Record<string, `audio/${string}`> = {
+      mp3: 'audio/mpeg',
+      wav: 'audio/wav',
+      ogg: 'audio/ogg',
+      m4a: 'audio/mp4',
+      aac: 'audio/aac',
+      flac: 'audio/flac'
+    };
+  
+    // Use the content type if valid, otherwise infer from extension
+    return contentType.startsWith('audio/') 
+      ? contentType as `audio/${string}`
+      : audioTypes[extension] || 'audio/mpeg'; // Default to mp3
+  }
+  
+  /**
+   * Generates cover art URL for the audio (optional)
+   */ 
+  private getAudioCoverArtUrl(filename: string): SafeResourceUrl | null {
+    // Implement your cover art logic here:
+    // 1. From embedded ID3 tags (would require client-side parsing)
+    // 2. From a pre-generated cover art service
+    // 3. A placeholder image
+    return null;
   }
   
   private handleUnknownFileType(url: string): void {
@@ -549,4 +674,88 @@ export class FolderListComponent implements OnInit {
       this.router.navigate(['/']);
     });
   }
+
+  private isTextFile(contentType: string, filename: string): boolean {
+    const textTypes = [
+      'text/plain',
+      'application/json',
+      'application/javascript',
+      'text/css',
+      'text/html',
+      'application/xml'
+    ];
+    
+    const extension = filename.split('.').pop()?.toLowerCase();
+    const textExtensions : string[]= [
+      'txt', 'json', 'js', 'ts', 'jsx', 'tsx', 
+      'css', 'html', 'htm', 'xml', 'cpp', 'h', 
+      'c', 'hpp', 'java', 'py', 'rb', 'php', 'sh'
+    ];
+    
+    return textTypes.includes(contentType) || 
+           (contentType === 'application/octet-stream' && 
+            textExtensions.includes(extension || ''));
+  }
+
+  private handleCodePreview(url: string, filename: string): void {
+    const extension = filename.split('.').pop()?.toLowerCase() || '';
+    const fileType = this.getCodeFileType(extension);
+    
+    // Create typed code preview data
+    const codePreviewData: CodePreviewData = {
+      type: 'code', // Discriminant property
+      fileUrl: this.sanitizer.bypassSecurityTrustResourceUrl(url),
+      fileName: filename,
+      fileType: fileType,
+      showPreview: true,
+      language: fileType, // More semantic property name
+      lineNumbers: true,  // Optional feature flag
+      maxLines: 500       // Safety limit
+    };
+  
+    // Send to preview service
+    this.previewService.sendCodePreview(codePreviewData);
+    this.navigateToPreview();
+  }
+  
+  private getCodeFileType(extension: string): CodeLanguage {
+    const codeTypes: Record<string, CodeLanguage> = {
+      'js': 'javascript',
+      'jsx': 'javascript',
+      'ts': 'typescript',
+      'tsx': 'typescript',
+      'json': 'json',
+      'html': 'html',
+      'css': 'css',
+      'scss': 'css',
+      'cpp': 'cpp',
+      'h': 'cpp',
+      'hpp': 'cpp',
+      'py': 'python',
+      'java': 'java',
+      'php': 'php',
+      'sh': 'bash',
+      'md': 'markdown',
+      'yaml': 'yaml',
+      'yml': 'yaml'
+    };
+      return codeTypes[extension] || 'plaintext';
+  }
+/**
+ * Helper method to determine image MIME type from filename
+ */
+private getImageMimeType(filename: string): `image/${string}` {
+  const extension = filename.split('.').pop()?.toLowerCase() || '';
+  const imageTypes: Record<string, `image/${string}`> = {
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    png: 'image/png',
+    gif: 'image/gif',
+    webp: 'image/webp',
+    svg: 'image/svg+xml',
+    bmp: 'image/bmp'
+  };
+  
+  return imageTypes[extension] || 'image/jpeg'; // default to jpeg if unknown
+}
 }
