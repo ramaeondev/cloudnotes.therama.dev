@@ -8,7 +8,7 @@ RUN npm run build -- --configuration production
 
 # Stage 2: NGINX
 FROM nginx:alpine
-COPY --from=builder /app/dist/cloudnotes-angular.therama.dev /usr/share/nginx/html
+COPY --from=builder /app/dist/cloudnotes-angular.therama.dev/browser /usr/share/nginx/html
 # Use NGINX template to render ${PORT} at runtime (Heroku)
 COPY conf.d/default.conf.template /etc/nginx/templates/default.conf.template
 
