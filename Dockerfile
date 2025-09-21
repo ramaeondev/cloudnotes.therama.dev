@@ -1,35 +1,27 @@
-# =========================
 # Stage 1: Build Angular app
-# =========================
-FROM node:20-alpine AS build
-
+FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Install dependencies
 COPY package*.json ./
 RUN npm ci
 
-# Copy source code and build Angular app
+# Copy source and build
 COPY . .
 RUN npm run build -- --configuration production
 
-# =========================
-# Stage 2: Serve with Nginx
-# =========================
+# Stage 2: Serve with NGINX
 FROM nginx:alpine
+COPY --from=builder /app/dist/ /usr/share/nginx/html
 
-# Remove default nginx static assets
-RUN rm -rf /usr/share/nginx/html/*
+# Remove default nginx config
+RUN rm /etc/nginx/conf.d/default.conf
 
-# Copy Angular build output
-COPY --from=build /app/dist/cloudnotes-angular.therama.dev /usr/share/nginx/html/
+# Copy custom nginx config
+COPY nginx.conf /etc/nginx/conf.d/
 
-# Copy custom nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
-
-# Expose ports for Heroku
+# Expose port
 EXPOSE 80
-EXPOSE 443
 
-# Run nginx in foreground
+# Start NGINX
 CMD ["nginx", "-g", "daemon off;"]

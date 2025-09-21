@@ -9,8 +9,6 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      HEROKU_APP_NAME: cloudnotes-frontend   # Change to your Heroku app name
 
     steps:
       # Step 1: Capture start time
@@ -26,32 +24,54 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
+      
+      # Step 4: Configure AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_GLOBAL }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_GLOBAL }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-      # Step 4: Install dependencies and build Angular app
+      # Step 5: Build Angular app
       - name: Build Angular app
         run: |
           npm ci
           npm run build -- --configuration production
 
-      # Step 5: Login to Heroku Container Registry
-      - name: Login to Heroku Container Registry
+      # Step 6: Install Docker (optional on ubuntu-latest)
+      - name: Ensure Docker is available
+        run: docker version
+
+      # Step 7: Install Heroku CLI
+      - name: Install Heroku CLI
+        run: curl https://cli-assets.heroku.com/install.sh | sh
+
+      # Step 8: Set Heroku container stack (needed once)
+      - name: Ensure Heroku container stack
+        run: heroku stack:set container -a ${{ secrets.HEROKU_APP_NAME }}
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        run: echo $HEROKU_API_KEY | docker login --username=_ --password-stdin registry.heroku.com
 
-      # Step 6: Build Docker image
+      # Step 9: Login to Heroku Container Registry
+      - name: Login to Heroku Container Registry
+        run: echo ${{ secrets.HEROKU_API_KEY }} | docker login --username=_ --password-stdin registry.heroku.com
+
+      # Step 10: Build Docker image
       - name: Build Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: registry.heroku.com/${{ env.HEROKU_APP_NAME }}/web
+        run: docker build -t registry.heroku.com/${{ secrets.HEROKU_APP_NAME }}/web .
 
-      # Step 7: Release Docker image on Heroku
+      # Step 11: Push Docker image to Heroku
+      - name: Push Docker image
+        run: docker push registry.heroku.com/${{ secrets.HEROKU_APP_NAME }}/web
+
+      # Step 12: Release Docker image on Heroku
       - name: Release app on Heroku
-        run: heroku container:release web -a ${{ env.HEROKU_APP_NAME }}
+        run: heroku container:release web -a ${{ secrets.HEROKU_APP_NAME }}
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
-      # Step 8: Log deployment duration (optional)
+      # Step 13: Log deployment duration (optional)
       - name: Log and Update Deployment
         if: always()
         uses: ramaeondev/therama.dev/.github/actions/log-and-update-deployment@master
