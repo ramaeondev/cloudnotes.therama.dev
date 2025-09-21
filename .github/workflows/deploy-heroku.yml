@@ -35,7 +35,6 @@ jobs:
 
       # Step 5: Build Angular app
       - name: Build Angular app
-        working-directory: ./cloudnotes.therama.dev
         run: |
           npm ci
           npm run build -- --configuration production
@@ -60,7 +59,6 @@ jobs:
 
       # Step 10: Build Docker image
       - name: Build Docker image
-        working-directory: ./cloudnotes.therama.dev
         run: docker build -t registry.heroku.com/${{ secrets.HEROKU_APP_NAME }}/web .
 
       # Step 11: Push Docker image to Heroku
