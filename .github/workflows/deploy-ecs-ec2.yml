@@ -13,9 +13,6 @@ jobs:
       AWS_REGION: us-east-1
 
     steps:
-      - name: Capture start time
-        run: echo "START_TIME=$(date +%s)" >> $GITHUB_ENV
-
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -80,10 +77,3 @@ jobs:
               -v /etc/ssl/certs:/etc/ssl/certs:ro \
               -v /etc/ssl/private:/etc/ssl/private:ro \
               public.ecr.aws/r5p8n8t0/cloudnotes/frontend:latest
-
-      - name: Log and Update Deployment
-        if: always()
-        uses: ramaeondev/therama.dev/.github/actions/log-and-update-deployment@master
-        with:
-          start_time: ${{ env.START_TIME }}
-          s3_bucket: ${{ secrets.S3_UPLOAD_BUCKET }}

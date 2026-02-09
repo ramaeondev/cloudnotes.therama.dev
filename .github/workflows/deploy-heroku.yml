@@ -11,10 +11,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Capture start time
-      - name: Capture start time
-        run: echo "START_TIME=$(date +%s)" >> $GITHUB_ENV
-
       # Step 2: Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
@@ -71,10 +67,3 @@ jobs:
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
-      # Step 13: Log deployment duration (optional)
-      - name: Log and Update Deployment
-        if: always()
-        uses: ramaeondev/therama.dev/.github/actions/log-and-update-deployment@master
-        with:
-          start_time: ${{ env.START_TIME }}
-          s3_bucket: ${{ secrets.S3_UPLOAD_BUCKET }}
